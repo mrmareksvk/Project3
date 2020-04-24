@@ -3,7 +3,12 @@
      WiFi.setSleepMode(WIFI_NONE_SLEEP);
 
 	ADAM EDITTTTTTTT
+<<<<<<< HEAD
  dnsajkofhafeqwbfwehiuoqewhUIÉNEWHIFLEWBNFHLIDNK
+=======
+	Catalina 
+
+>>>>>>> 0a63928d2c422f3cacce137ed388ed25a652a201
 */
 
 #include <ESP8266WiFi.h>
