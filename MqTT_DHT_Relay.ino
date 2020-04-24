@@ -2,6 +2,8 @@
      WiFi.mode(WIFI_NONE_SLEEP) ✔
      WiFi.setSleepMode(WIFI_NONE_SLEEP);
 
+	ADAM EDITTTTTTTT
+
 */
 
 #include <ESP8266WiFi.h>
