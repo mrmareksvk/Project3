@@ -89,7 +89,7 @@ void setup() {
   Serial.println("setup");
   //begin wi-fi connection
   WiFi.begin(ssid, password);
-  
+
   //check wi-fi if is connected yet
   while (WiFi.status() != WL_CONNECTED) {
     delay(300);
@@ -111,7 +111,6 @@ void setup() {
 
   // Handlers
   server.on("/", handle_OnConnect);
-//  server.on("/test", http_get);
   server.onNotFound(handle_NotFound);
 
   server.begin();
@@ -119,7 +118,7 @@ void setup() {
 }
 void loop() {
   server.handleClient();
-  if (millis() >= timer + 5000 && ss.available() > 0) {
+  if (millis() >= timer + 5000) {
     timer = millis();
     Serial.println("timer");
     while (ss.available() > 0) {
@@ -137,6 +136,6 @@ void loop() {
       }
     }
   }
-  
+
 
 }
