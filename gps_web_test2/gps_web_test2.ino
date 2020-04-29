@@ -3,12 +3,15 @@
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
 
-#define INLED 16             // <------------
+
+#define INLED 2             // <------------
 #define RXPin 0             // <------------
-#define TXPin 2            // <------------
+#define TXPin 4            // <------------
 
 long timer=0;
-double longitude, latitude, datestamp, timestamp;
+double longitude, latitude;
+String date_string, datestamp, timestamp, time_string;
+
 
 /*Put your SSID & Password*/
 const char* ssid = "Vartic1";               // Enter SSID here
@@ -25,7 +28,7 @@ TinyGPSPlus gps;
 SoftwareSerial ss(RXPin, TXPin);
 
 void handle_OnConnect() {
-  server.send(200, "text/html", SendHTML(longitude, latitude, datestamp, timestamp));
+  server.send(200, "text/html", SendHTML(longitude, latitude, date_string, time_string));
   delay(500);
 }
 
@@ -33,7 +36,7 @@ void handle_NotFound() {
   server.send(404, "text/plain", "Not found");
 }
 
-String SendHTML(double longitude, double latitude, double datestamp, double timestamp) {
+String SendHTML(double templongitude, double templatitude, String datestamp, String timestamp) {
   String ptr = "<!DOCTYPE html> <html>\n";
   ptr += "<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, user-scalable=no\">\n";
 
@@ -60,12 +63,17 @@ String SendHTML(double longitude, double latitude, double datestamp, double time
   ptr += "<div id=\"webpage\">\n";
   ptr += "<h1>ESP8266 GPS testing</h1>\n";
   ptr += "<p>Latitude: ";
+  char latitude[11];
+  dtostrf(templatitude, 8, 6, latitude);
   ptr += latitude;
   ptr += "</p>";
   ptr += "<p>Longitude: ";
+  char longitude[11];
+  dtostrf(templongitude, 8, 6, longitude);
   ptr += longitude;
   ptr += "</p>";
   ptr += "<p>Date: ";
+  
   ptr += datestamp;
   ptr += "<p>Time ";
   ptr += timestamp;
@@ -96,16 +104,7 @@ void setup() {
     digitalWrite(INLED, !digitalRead(INLED));
   }
   Serial.print(WiFi.localIP());
-
-  while (ss.available() > 0) {
-    gps.encode(ss.read());
-    if (gps.location.isUpdated()) {
-      latitude = gps.location.lat();
-      longitude = gps.location.lng();
-      datestamp = gps.date.value();       // Raw date in DDMMYY format (u32)
-      timestamp = gps.time.value();       // Raw time in HHMMSSCC format (u32)
-    }
-  }
+  
 
   //IP: WiFi.localIP()
 
@@ -116,26 +115,38 @@ void setup() {
   server.begin();
 
 }
-void loop() {
+void loop(){
+  // This sketch displays information every time a new sentence is correctly encoded.
   server.handleClient();
-  if (millis() >= timer + 5000) {
-    timer = millis();
-    Serial.println("timer");
-    while (ss.available() > 0) {
-//      Serial.println("whileloop");
-      gps.encode(ss.read());
-      if (gps.location.isUpdated()) {
-        latitude = gps.location.lat();
-        longitude = gps.location.lng();
-        datestamp = gps.date.value();
-        timestamp = gps.time.value();
-//        Serial.println(latitude);
-//        Serial.println(longitude);
-//        Serial.println(datestamp);
-//        Serial.println(timestamp);
+  while (ss.available() > 0){
+    gps.encode(ss.read());
+    if (gps.location.isUpdated()){
+      latitude = gps.location.lat();
+      longitude = gps.location.lng();
+//      datestamp = gps.date.value();
+      if (gps.date.isValid()){
+        datestamp = gps.date.month();
+        datestamp +="/";
+        datestamp += gps.date.day();
+        datestamp +="/";
+        datestamp += gps.date.year();
       }
+      date_string = datestamp;
+      datestamp = "";
+      Serial.println(datestamp);
+//      timestamp = gps.time.value();
+      if (gps.time.isValid()){
+        timestamp = gps.time.hour();
+        timestamp += ":";
+        timestamp += gps.time.minute();
+        timestamp += ":";
+        timestamp += gps.time.second();
+        }
+       time_string = timestamp;
+       timestamp = "";
+//      Serial.println(timestamp);
+//      Serial.println(latitude);
+
     }
   }
-
-
 }
