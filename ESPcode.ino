@@ -12,6 +12,8 @@
      GPS function
      WiFi reconnect function
      REWORK WIFI SETUP
+
+     MQTT topic for every
 */
 
 // LIBRARIES
@@ -30,7 +32,8 @@
 float temperature, humidity;                        // FLOATS Measurements
 char temp_a[4], hum_a[4], light_a[4];               // ARRAYS for MQTT
 long lastRecon = 0, timer1 = 0, interval = 300000;  // TIMERS
-int light,                                          //INT LIGHT 1024
+int light,                                          // INT LIGHT 1024
+bool dataToSend = false;                            // BOOL for data sending
 
 // INITIALIZATIONS
 
@@ -81,7 +84,7 @@ boolean reconnect(void) {
 }
 
 void setup() {
-  //WiFi.disconnect();
+  WiFi.disconnect();                                // clear WiFi cache
   //delay(100);
 
   // IO setup
