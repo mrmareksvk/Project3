@@ -18,16 +18,19 @@
 
 // LIBRARIES
 #include <ESP8266WiFi.h>
+#include "Secret.h"                                 //SSID , PSW
 #include <DHT.h>
 #include <PubSubClient.h>
-#include "Secret.h"                                 //SSID , PSW
+#include <TinyGPS++.h>
+#include <SoftwareSerial.h>
 
 // DEFINITIONS
-#define DHTPIN 13
+#define DHTPIN 13                                   // <----------
 #define DHTTYPE DHT22                               // DHT11 / DHT22(AM2302)
-#define LDR_PIN A0
-#define IN_LED 2
-
+#define LDR_PIN A0                                  // <----------
+#define IN_LED 2                                    // <----------
+#define RXpin 3                                     // <----------
+#define TXpin 1
 // VARIABLES
 float temperature, humidity;                        // FLOATS Measurements
 char temp_a[4], hum_a[4], light_a[4];               // ARRAYS for MQTT
@@ -36,6 +39,12 @@ int light,                                          // INT LIGHT 1024
 bool dataToSend = false;                            // BOOL for data sending
 
 // INITIALIZATIONS
+
+// The TinyGPS++ object
+TinyGPSPlus gps;
+
+// The serial connection to the GPS device
+SoftwareSerial ss(RXPin, TXPin);
 
 // DHT OBJECT
 DHT dht22(DHTPIN, DHTTYPE);
