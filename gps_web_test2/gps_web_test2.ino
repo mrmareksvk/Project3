@@ -14,7 +14,7 @@ String date_string, datestamp, timestamp, time_string;
 
 /*Put your SSID & Password*/
 const char* ssid = "****";                   // Enter SSID here
-const char* password = "***";            // Enter Password here
+const char* password = "***";               // Enter Password here
 
 
 // server object
