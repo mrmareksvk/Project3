@@ -1,12 +1,11 @@
 #include <ESP8266WebServer.h>
-#include <ESP8266WiFi.h>
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
 
 
 #define INLED 2             // <------------
 #define RXPin 0             // <------------
-#define TXPin 4            // <------------
+#define TXPin 4             // <------------
 
 long timer=0;
 double longitude, latitude;
@@ -14,8 +13,8 @@ String date_string, datestamp, timestamp, time_string;
 
 
 /*Put your SSID & Password*/
-const char* ssid = "Vartic1";               // Enter SSID here
-const char* password = "DaTaCaGaSe";           // Enter Password here
+const char* ssid = "****";                   // Enter SSID here
+const char* password = "***";            // Enter Password here
 
 
 // server object
@@ -73,7 +72,7 @@ String SendHTML(double templongitude, double templatitude, String datestamp, Str
   ptr += longitude;
   ptr += "</p>";
   ptr += "<p>Date: ";
-  
+
   ptr += datestamp;
   ptr += "<p>Time ";
   ptr += timestamp;
@@ -104,7 +103,7 @@ void setup() {
     digitalWrite(INLED, !digitalRead(INLED));
   }
   Serial.print(WiFi.localIP());
-  
+
 
   //IP: WiFi.localIP()
 
