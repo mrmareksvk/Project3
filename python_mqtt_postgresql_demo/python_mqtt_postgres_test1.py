@@ -62,6 +62,7 @@ def on_message(client, userdata, msg):
     if sensorDATA[0] == -1:
         sensorID = msg.topic[11]
         sensorDATA[0] = sensorID
+    # elif is more effective
     if "temp" in msg.topic:
         sensorDATA[1] = msg.payload.decode("utf8")
     if "hum" in msg.topic:
