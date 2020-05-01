@@ -18,6 +18,7 @@
 #define ROOT_TOPIC "baaa"                           // <---------- issue 1
 #define DEVICE_NAME "sensor1"
 
+
 // VARIABLES
 float temperature, humidity;
 // ARRAYS for MQTT values
@@ -32,7 +33,7 @@ char date_topic[20], time_topic[20];
 int light;                                          // light val max 1024
 bool dataToSend = false;                            // flag for data sending
 // Timers (49d. millis roll)
-unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 10000;
+unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 5000;
 
 // MQTT TOPIC PATHS
 void pathAssign(void){
@@ -108,27 +109,30 @@ void measureLight(void) {
 // Non-blocking mqtt connection function
 boolean reconnect(void) {                           // <------- !!
   String clientId = DEVICE_NAME;                    // <------- !! change String
-  if (mqttClient.connect(clientId.c_str(), mqtt_user, mqtt_psw) && dataToSend) {
-    mqttPublish();
+  if (mqttClient.connect(clientId.c_str(), mqtt_user, mqtt_psw)) {
+      mqttClient.publish("baaa", "connected");
+      if(dataToSend){
+          mqttPublish();
+      }
   }
   return mqttClient.connected();
 }
 
 void mqttPublish(void) {                            // remove delays?
   mqttClient.publish(temp_topic, "temp");
-  //delay(25);
+  delay(25);
   mqttClient.publish(hum_topic, "hum");
-  //delay(25);
+  delay(25);
   mqttClient.publish(light_topic, "light");
-  //delay(25);
+  delay(25);
   mqttClient.publish(lat_topic, "lat");
-  //delay(25);
+  delay(25);
   mqttClient.publish(lon_topic, "lon");
-  //delay(25);
+  delay(25);
   mqttClient.publish(date_topic, "date");
-  //delay(25);
+  delay(25);
   mqttClient.publish(time_topic, "time");
-  //delay(25);
+  delay(25);
   dataToSend = false;
 }
 
@@ -183,7 +187,7 @@ void setup() {
     digitalWrite(IN_LED, !digitalRead(IN_LED));
   }
 
-  digitalWrite(IN_LED, LOW);                        // maybe anti logic LOW=HIGH
+  digitalWrite(IN_LED, HIGH);                        // antilogic
 
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
 
@@ -193,15 +197,12 @@ void setup() {
 void loop() {
   // -----------------  M Q T T  C O N N E C T I O N  -----------------
   if (!mqttClient.connected()) {
-    // TODO: Change LEDs for debug prints?
-    // signalize loss of connection by LED
-    digitalWrite(IN_LED, HIGH);
+  // Loss of connection
     if (millis() >= lastReconnect + 2000) {     // + reconnectInterval
       lastReconnect = millis();
       // Try reconnect
       if (reconnect()) {
-        // succesfull reconection, turn off LED
-        digitalWrite(IN_LED, LOW);
+        // Succesfull reconection
         lastReconnect = 0;
       }
     }
@@ -211,9 +212,8 @@ void loop() {
   }
 
   // -----------------  M Q T T  S E N D I N G  5  M i n  -----------------
-  // testing for 10seconds
+  // testing set for 5 seconds
   if (millis() >= timer1 + interval) {
-    // TODO  -  functions, check integrity from every function
     timer1 = millis();
     measureTemp();
     measureHum();

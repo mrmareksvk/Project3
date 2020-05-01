@@ -8,7 +8,7 @@ PROGRAM:
      ARRAYS FOR KEEPING DATA
      dtostrf(floatvar, StringLengthIncDecimalPoint, numVarsAfterDecimal, charbuf);
      memcpy
-
+     TODO  -  functions, check integrity from every function
 
      last measurement checker
      if light measure
@@ -21,6 +21,8 @@ PROGRAM:
 
 MQTT:
      if something is crashing rework ping time in pubsub library
+
+     make server connection in constructor
 
      MQTT topic for every sensor
      baaa/sensor???/vars (sens999 max)  (19+1(delim) chars)
