@@ -40,7 +40,8 @@ for tableID in range(1, 6):
         "   latitude DOUBLE PRECISION,"
         "   longitude DOUBLE PRECISION,"
         "   dt TIMESTAMP"
-        ")", (tableID,)
+        ")",
+        (tableID,),
     )
 
 con.commit()
@@ -87,6 +88,15 @@ client.connect("192.168.0.192", 1883, 60)
 
 while True:
     if -1 not in sensorDATA:
+        sensorDATA[6] = (
+            "20" + sensorDATA[6][4:]
+            + "-" + sensorDATA[6][2:4]
+            + "-" + sensorDATA[6][:2]
+        )
+        sensorDATA[7] = (
+            sensorDATA[7][:2] + ":" + sensorDATA[7][2:4] + ":" + sensorDATA[7][4:6]
+        )
+
         print("saving shit")
         cur.execute(
             "INSERT INTO sensor%s (temperature, humidity, lux, latitude, longitude, dt) VALUES(%s, %s, %s, %s, %s, %s)",
@@ -98,7 +108,7 @@ while True:
                 sensorDATA[4],
                 sensorDATA[5],
                 sensorDATA[6] + " " + sensorDATA[7],
-            )
+            ),
         )
         con.commit()
         sensorDATA = [-1] * 8
@@ -106,7 +116,7 @@ while True:
 
     # press q to exit
     if msvcrt.kbhit():
-        if msvcrt.getch() == b'q':
+        if msvcrt.getch() == b"q":
             cur.close()
             con.close()
             break
