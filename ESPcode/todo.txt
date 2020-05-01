@@ -9,6 +9,8 @@ PROGRAM:
      dtostrf(floatvar, StringLengthIncDecimalPoint, numVarsAfterDecimal, charbuf);
      memcpy
      TODO  -  functions, check integrity from every function
+     char *  itoa ( int value, char * str, int base );
+    Convert integer to string (non-standard function)
 
      last measurement checker
      if light measure
@@ -18,6 +20,7 @@ PROGRAM:
      WiFi reconnect function
      REWORK WIFI SETUP
 
+     do define based on board
 
 MQTT:
      if something is crashing rework ping time in pubsub library
