@@ -63,20 +63,19 @@ def on_message(client, userdata, msg):
     if sensorDATA[0] == -1:
         sensorID = msg.topic[11]
         sensorDATA[0] = sensorID
-    # elif is more effective
     if "temp" in msg.topic:
         sensorDATA[1] = msg.payload.decode("utf8")
-    if "hum" in msg.topic:
+    elif "hum" in msg.topic:
         sensorDATA[2] = msg.payload.decode("utf8")
-    if "lux" in msg.topic:
+    elif "lux" in msg.topic:
         sensorDATA[3] = msg.payload.decode("utf8")
-    if "lat" in msg.topic:
+    elif "lat" in msg.topic:
         sensorDATA[4] = msg.payload.decode("utf8")
-    if "lon" in msg.topic:
+    elif "lon" in msg.topic:
         sensorDATA[5] = msg.payload.decode("utf8")
-    if "date" in msg.topic:
+    elif "date" in msg.topic:
         sensorDATA[6] = msg.payload.decode("utf8")
-    if "time" in msg.topic:
+    elif "time" in msg.topic:
         sensorDATA[7] = msg.payload.decode("utf8")
 
 
