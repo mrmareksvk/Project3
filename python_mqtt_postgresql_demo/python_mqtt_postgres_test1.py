@@ -75,8 +75,18 @@ def on_message(client, userdata, msg):
         sensorDATA[5] = msg.payload.decode("utf8")
     elif "date" in msg.topic:
         sensorDATA[6] = msg.payload.decode("utf8")
+        if len(sensorDATA[6]) == 5:
+            sensorDATA[6] = "0" + sensorDATA[6]
+        sensorDATA[6] = (
+            "20" + sensorDATA[6][4:]
+            + "-" + sensorDATA[6][2:4]
+            + "-" + sensorDATA[6][:2]
+        )
     elif "time" in msg.topic:
         sensorDATA[7] = msg.payload.decode("utf8")
+        sensorDATA[7] = (
+            sensorDATA[7][:2] + ":" + sensorDATA[7][2:4] + ":" + sensorDATA[7][4:6]
+        )
 
 
 client = mqtt.Client()
@@ -88,15 +98,6 @@ client.connect("192.168.0.192", 1883, 60)
 
 while True:
     if -1 not in sensorDATA:
-        sensorDATA[6] = (
-            "20" + sensorDATA[6][4:]
-            + "-" + sensorDATA[6][2:4]
-            + "-" + sensorDATA[6][:2]
-        )
-        sensorDATA[7] = (
-            sensorDATA[7][:2] + ":" + sensorDATA[7][2:4] + ":" + sensorDATA[7][4:6]
-        )
-
         print("saving shit")
         cur.execute(
             "INSERT INTO sensor%s (temperature, humidity, lux, latitude, longitude, dt) VALUES(%s, %s, %s, %s, %s, %s)",
