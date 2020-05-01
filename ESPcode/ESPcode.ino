@@ -87,6 +87,9 @@ const char* password = SECRET_PSW;                  //Secret.h
 // MQTT SETUP
 PubSubClient mqttClient(espClient);
 
+const char* mqtt_user = SECRET_MQTT_USER;
+const char* mqtt_psw = SECRET_MQTT_PSW;
+
 // FUNCTIONS
 void measureTemp(void) {
   temperature = dht22.readTemperature();
@@ -105,7 +108,7 @@ void measureLight(void) {
 // Non-blocking mqtt connection function
 boolean reconnect(void) {                           // <------- !!
   String clientId = DEVICE_NAME;                    // <------- !! change String
-  if (mqttClient.connect(clientId.c_str()) && dataToSend) {
+  if (mqttClient.connect(clientId.c_str(), mqtt_user, mqtt_psw) && dataToSend) {
     mqttPublish();
   }
   return mqttClient.connected();
