@@ -1,0 +1,45 @@
+TODO, DEBUG and stuff:
+WIFI:
+     WiFi.mode(WIFI_NONE_SLEEP)
+     WiFi.setSleepMode(WIFI_NONE_SLEEP);
+PROGRAM:
+     TODO: Integrity check from function returns
+     ARRAYS FOR GPS
+     ARRAYS FOR KEEPING DATA
+     dtostrf(floatvar, StringLengthIncDecimalPoint, numVarsAfterDecimal, charbuf);
+     memcpy
+
+
+     last measurement checker
+     if light measure
+     light > change to lux? - CHECK data sheet for LDR
+
+     GPS function
+     WiFi reconnect function
+     REWORK WIFI SETUP
+
+
+MQTT:
+     if something is crashing rework ping time in pubsub library
+
+     MQTT topic for every sensor
+     baaa/sensor???/vars (sens999 max)  (19+1(delim) chars)
+     vars = {temp,hum,lux,lat,lon,date,time}
+
+     MAYBE
+     - move mqtt server ip + port to definition so everything is on one place
+
+     int publish (topic, payload) {const char[]; const char[]}
+     int publish (topic, payload, length) {const char[]; byte[]; byte}
+     int publish (topic, payload, retained) {const char[]; const char[]; bool}
+
+     MAYBE TODO
+     - implement MQTT disconnect so we dont generate
+
+     To get TinyGPS++ to work, you have to repeatedly funnel the characters to it from the GPS module using the encode() method.
+
+DEBUG:
+     possible issue 1 :
+     if root topic or device name is changed it might cause overflow
+     check size of before defining final MQTT topic PATHS
+     - maybe define whole topic path and then measure its size
