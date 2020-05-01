@@ -32,7 +32,7 @@ cur = con.cursor()
 
 for tableID in range(1, 6):
     cur.execute(
-        "CREATE TABLE IF NOT EXISTS sensor" + str(tableID) + "("
+        "CREATE TABLE IF NOT EXISTS sensor%s ("
         "   id_entry SERIAL PRIMARY KEY,"
         "   temperature DOUBLE PRECISION,"
         "   humidity INT,"
@@ -40,7 +40,7 @@ for tableID in range(1, 6):
         "   latitude DOUBLE PRECISION,"
         "   longitude DOUBLE PRECISION,"
         "   dt TIMESTAMP"
-        ")"
+        ")", (tableID,)
     )
 
 con.commit()
