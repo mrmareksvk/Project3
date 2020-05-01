@@ -13,22 +13,26 @@
 #define IN_LED 2
 #define RXPinGPS 3
 #define TXPinGPS 1
+#define MQTT_SERVER "192.168.155.128"
+#define MQTT_PORT 1883
 #define ROOT_TOPIC "baaa"                           // <---------- issue 1
 #define DEVICE_NAME "sensor1"
 
 // VARIABLES
 float temperature, humidity;
 // ARRAYS for MQTT values
-char temp_a[4], hum_a[4], light_a[4];
+char temp_a[5], hum_a[5], light_a[5];               // maybe hum 3?
+// LATITUDE 90.123456 / LONGITUDE 180.123456 (2/3 + 1(float point) + 6 + delim)
 double latitude, longitude;
 char lat_a[10], lon_a[11];                          // 6 demical precis + delim
+char date_a[10], time_a[10];                                    // rework maybe
 char temp_topic[20], hum_topic[20], light_topic[20];
 char lat_topic[20], lon_topic[20];
 char date_topic[20], time_topic[20];
 int light;                                          // light val max 1024
 bool dataToSend = false;                            // flag for data sending
 // Timers (49d. millis roll)
-unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 300000;
+unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 10000;
 
 // MQTT TOPIC PATHS
 void pathAssign(void){
@@ -80,10 +84,7 @@ WiFiClient espClient;
 const char* ssid = SECRET_SSID;                     //Secret.h
 const char* password = SECRET_PSW;                  //Secret.h
 
-// MQTT setup
-const char* mqtt_server = "192.168.155.128";        // <----------!
-const int mqtt_port = 1883;
-
+// MQTT SETUP
 PubSubClient mqttClient(espClient);
 
 // FUNCTIONS
@@ -103,7 +104,7 @@ void measureLight(void) {
 
 // Non-blocking mqtt connection function
 boolean reconnect(void) {                           // <------- !!
-  String clientId = DEVICE_NAME;
+  String clientId = DEVICE_NAME;                    // <------- !! change String
   if (mqttClient.connect(clientId.c_str()) && dataToSend) {
     mqttPublish();
   }
@@ -111,19 +112,19 @@ boolean reconnect(void) {                           // <------- !!
 }
 
 void mqttPublish(void) {                            // remove delays?
-  mqttClient.publish(temp_topic, "test");
+  mqttClient.publish(temp_topic, "temp");
   //delay(25);
-  mqttClient.publish(hum_topic, "test");
+  mqttClient.publish(hum_topic, "hum");
   //delay(25);
-  mqttClient.publish(light_topic, "test");
+  mqttClient.publish(light_topic, "light");
   //delay(25);
-  mqttClient.publish(lat_topic, "test");
+  mqttClient.publish(lat_topic, "lat");
   //delay(25);
-  mqttClient.publish(lon_topic, "test");
+  mqttClient.publish(lon_topic, "lon");
   //delay(25);
-  mqttClient.publish(date_topic, "test");
+  mqttClient.publish(date_topic, "date");
   //delay(25);
-  mqttClient.publish(time_topic, "test");
+  mqttClient.publish(time_topic, "time");
   //delay(25);
   dataToSend = false;
 }
@@ -137,8 +138,18 @@ void gpsParser(void) {
 
         longitude = gps.location.lng();
         dtostrf(longitude, 10, 6, lon_a);
-
     }
+
+    if (gps.date.isUpdated()){
+        // final array,string "%d", value
+        sprintf(date_a, "%d", gps.date.value());    //DDMMYY
+    }
+
+    if (gps.time.isUpdated()){
+        // final array,string "%d", value
+        sprintf(time_a, "%d", gps.time.value());    //HHMMSSCC
+    }
+
   }
 
 }
@@ -171,7 +182,7 @@ void setup() {
 
   digitalWrite(IN_LED, LOW);                        // maybe anti logic LOW=HIGH
 
-  mqttClient.setServer(mqtt_server, mqtt_port);
+  mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
 
 
 }
@@ -197,9 +208,17 @@ void loop() {
   }
 
   // -----------------  M Q T T  S E N D I N G  5  M i n  -----------------
+  // testing for 10seconds
   if (millis() >= timer1 + interval) {
     // TODO  -  functions, check integrity from every function
     timer1 = millis();
+    measureTemp();
+    measureHum();
+    measureLight();
     dataToSend = true;
+    mqttPublish();
   }
+
+  gpsParser();
+
 }
