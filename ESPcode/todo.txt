@@ -10,7 +10,12 @@ PROGRAM:
      memcpy
      TODO  -  functions, check integrity from every function
      char *  itoa ( int value, char * str, int base );
-    Convert integer to string (non-standard function)
+     dtostrf() >
+     http://www.nongnu.org/avr-libc/user-manual/group__avr__stdlib.html#ga060c998e77fb5fc0d3168b3ce8771d42
+
+     http://www.cplusplus.com/reference/string/string/substr/
+
+     Convert integer to string (non-standard function)
 
      last measurement checker
      if light measure

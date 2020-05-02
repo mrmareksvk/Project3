@@ -13,7 +13,7 @@
 #define IN_LED 2
 #define RXPinGPS 3                                  // <-----
 #define TXPinGPS 1                                  // <-----
-#define MQTT_SERVER "broker.hivemq.com"
+#define MQTT_SERVER "broker.hivemq.com"             // <----- LOCAL HOST
 #define MQTT_PORT 1883
 #define ROOT_TOPIC "baaa/"                          // Add / after
 #define DEVICE_NAME "sensor1"
@@ -21,18 +21,21 @@
 
 // VARIABLES
 float temperature, humidity;
+int light;                                          // light val max 1024
+bool dataToSend = false;                            // flag for data sending
 // ARRAYS for MQTT values
-char temp_a[5], hum_a[4], light_a[5];               // maybe hum 3?
+char temp_a[6], hum_a[3], light_a[5];               // also - temperatures?
+
 // LATITUDE 90.123456 / LONGITUDE 180.123456 (2/3 + 1(float point) + 6 + delim)
 double latitude, longitude;
-char lat_a[10], lon_a[11];                          // 6 demical precis + delim
-char date_a[7], time_a[9];                        // rework maybe
+char lat_a[10], lon_a[11];
+char date_a[7], time_a[9];
+
 char temp_topic[20], hum_topic[20], light_topic[20];
 char lat_topic[20], lon_topic[20];
 char date_topic[20], time_topic[20];
-int light;                                          // light val max 1024
-bool dataToSend = false;                            // flag for data sending
-// Timers (49d. millis roll)
+
+// Timers (49d. for millis roll-over)
 unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 5000;
 
 // MQTT TOPIC PATHS
@@ -111,7 +114,7 @@ void measureLight(void) {
 boolean reconnect(void) {                           // <------- !!
   const char* clientId = DEVICE_NAME;               // <------- !! change String
   if (mqttClient.connect(clientId, mqtt_user, mqtt_psw)) {
-      mqttClient.publish("baaa", DEVICE_NAME);
+      mqttClient.publish(ROOT_TOPIC, DEVICE_NAME);
       if(dataToSend){
           mqttPublish();
       }
@@ -121,19 +124,19 @@ boolean reconnect(void) {                           // <------- !!
 
 void mqttPublish(void) {                            // are delays necessary?
   mqttClient.publish(temp_topic, temp_a);
-  delay(25);
+//delay(25);
   mqttClient.publish(hum_topic, hum_a);
-  delay(25);
+//delay(25);
   mqttClient.publish(light_topic, light_a);
-  delay(25);
+//delay(25);
   mqttClient.publish(lat_topic, lat_a);
-  delay(25);
+//delay(25);
   mqttClient.publish(lon_topic, lon_a);
-  delay(25);
+//delay(25);
   mqttClient.publish(date_topic, date_a);
-  delay(25);
+//delay(25);
   mqttClient.publish(time_topic, time_a);
-  delay(25);
+//delay(25);
   dataToSend = false;
 }
 
@@ -150,16 +153,16 @@ void gpsParser(void) {
 
     if (gps.date.isUpdated()){
         // final array,string "%d", value
-        sprintf(date_a, "%d", gps.date.value());    //DDMMYY
+        sprintf(date_a, "%d", gps.date.value());    // DDMMYY
     }
 
     if (gps.time.isUpdated()){
         // final array,string "%d", value
-        sprintf(time_a, "%d", gps.time.value());    //HHMMSSCC
+        sprintf(time_a, "%d", gps.time.value());    // HHMMSSCC
+        time_a[strlen(time_a)-2] = '\0';            // remove centy-seconds
     }
 
   }
-
 }
 
 void setup() {
