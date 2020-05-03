@@ -1,3 +1,16 @@
+/*TODO
+    if newdata verification put outside from 5 minute loop
+    every measure functions should have validation implemented
+    if measurement failed copy last item in array and append it
+    if connection. If storage array has 1 item use measurement array = same data
+
+    if data and wifi: if storage>1 -upload storage, else upload measure array
+
+    add power naps
+    non blocking wifi setup
+    request maintenance to root topic
+*/
+
 // LIBRARIES
 #include <ESP8266WiFi.h>
 #include "Secret.h"                                 // Stores SSID , PSW
@@ -7,6 +20,7 @@
 #include <SoftwareSerial.h>
 
 // DEFINITIONS
+#define ARR_SIZ(a) (sizeof(a) / sizeof(*a))         // maybe use
 #define DHTPIN 13
 #define DHTTYPE DHT22                               // DHT22(AM2302)
 #define LDR_PIN A0
@@ -18,27 +32,27 @@
 #define ROOT_TOPIC "baaa/"                          // Add / after
 #define DEVICE_NAME "sensor1"
 
-
 // VARIABLES
 float temperature, humidity;
 int light;                                          // light val max 1024
 bool dataToSend = false;                            // flag for data sending
+// Timers (49d. for millis roll-over)
+unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 5000;
 // ARRAYS for MQTT values
-char temp_a[6], hum_a[3], light_a[5];               // also - temperatures?
-
+char temp_a[6], hum_a[4], light_a[5];               // last received value
+char temp_storage[25][sizeof(temp_a)];              // ~2 hours of measurements
+char hum_storage[25][sizeof(hum_a)];
+char light_storage[25][sizeof(light_a)];
 // LATITUDE 90.123456 / LONGITUDE 180.123456 (2/3 + 1(float point) + 6 + delim)
 double latitude, longitude;
 char lat_a[10], lon_a[11];
 char date_a[7], time_a[9];
-
+// MQTT TOPIC PATHS
 char temp_topic[20], hum_topic[20], light_topic[20];
 char lat_topic[20], lon_topic[20];
 char date_topic[20], time_topic[20];
 
-// Timers (49d. for millis roll-over)
-unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 5000;
-
-// MQTT TOPIC PATHS
+// MQTT ASSIGN PATH FUNCTION
 void pathAssign(void){
 // temperature
 strcpy(temp_topic, ROOT_TOPIC);                     // copies and add delimiter
@@ -97,22 +111,34 @@ const char* mqtt_psw = SECRET_MQTT_PSW;
 // FUNCTIONS
 void measureTemp(void) {
   temperature = dht22.readTemperature();
+  if (isnan(temperature)){
+      // check storage array
+      // and copy last value
+      return;
+  }else{
   dtostrf(temperature, 4, 1, temp_a);               // MQTT: pass float to char array 4 long, 1 after dec. point
+  }
 }
 
 void measureHum(void) {
   humidity = dht22.readHumidity();
-  dtostrf(humidity, 3, 0, hum_a);
+  if (isnan(humidity)){
+      // check storage array
+      //temp_a = temp_storage[];
+      return;
+  }else{
+  dtostrf(humidity, 3, 0, hum_a);                   // check docu > dtostrf
+  }
 }
 
-void measureLight(void) {
+void measureLight(void) {                           // < do validity check
   light = analogRead(LDR_PIN);
-  itoa(light, light_a, 10);                        // <--------
+  itoa(light, light_a, 10);                         // check docu > itoa
 }
 
 // Non-blocking mqtt connection function
-boolean reconnect(void) {                           // <------- !!
-  const char* clientId = DEVICE_NAME;               // <------- !! change String
+boolean reconnect(void) {
+  const char* clientId = DEVICE_NAME;
   if (mqttClient.connect(clientId, mqtt_user, mqtt_psw)) {
       mqttClient.publish(ROOT_TOPIC, DEVICE_NAME);
       if(dataToSend){
@@ -122,21 +148,14 @@ boolean reconnect(void) {                           // <------- !!
   return mqttClient.connected();
 }
 
-void mqttPublish(void) {                            // are delays necessary?
+void mqttPublish(void) {
   mqttClient.publish(temp_topic, temp_a);
-//delay(25);
   mqttClient.publish(hum_topic, hum_a);
-//delay(25);
   mqttClient.publish(light_topic, light_a);
-//delay(25);
   mqttClient.publish(lat_topic, lat_a);
-//delay(25);
   mqttClient.publish(lon_topic, lon_a);
-//delay(25);
   mqttClient.publish(date_topic, date_a);
-//delay(25);
   mqttClient.publish(time_topic, time_a);
-//delay(25);
   dataToSend = false;
 }
 
@@ -191,7 +210,7 @@ void setup() {
     digitalWrite(IN_LED, !digitalRead(IN_LED));
   }
 
-  digitalWrite(IN_LED, HIGH);                        // antilogic
+  digitalWrite(IN_LED, HIGH);                        // anti-logic
 
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
 
@@ -202,7 +221,7 @@ void loop() {
   // -----------------  M Q T T  C O N N E C T I O N  -----------------
   if (!mqttClient.connected()) {
   // Loss of connection
-    if (millis() >= lastReconnect + 2000) {     // + reconnectInterval
+    if (millis() >= lastReconnect + 2000) {     // reconnectInterval
       lastReconnect = millis();
       // Try reconnect
       if (reconnect()) {
