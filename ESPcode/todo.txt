@@ -4,8 +4,8 @@ WIFI:
      WiFi.setSleepMode(WIFI_NONE_SLEEP);
 PROGRAM:
      TODO: Integrity check from function returns
-     ARRAYS FOR GPS
      ARRAYS FOR KEEPING DATA
+     last measurement checker
      dtostrf(floatvar, StringLengthIncDecimalPoint, numVarsAfterDecimal, charbuf);
      memcpy
      TODO  -  functions, check integrity from every function
@@ -15,23 +15,12 @@ PROGRAM:
 
      http://www.cplusplus.com/reference/string/string/substr/
 
-     Convert integer to string (non-standard function)
 
-     last measurement checker
-     if light measure
      light > change to lux? - CHECK data sheet for LDR
 
-     GPS function
      WiFi reconnect function
-     REWORK WIFI SETUP
-
-     do define based on board
 
 MQTT:
-     if something is crashing rework ping time in pubsub library
-
-     make server connection in constructor
-
      MQTT topic for every sensor
      baaa/sensor???/vars (sens999 max)  (19+1(delim) chars)
      vars = {temp,hum,lux,lat,lon,date,time}
@@ -44,7 +33,7 @@ MQTT:
      int publish (topic, payload, retained) {const char[]; const char[]; bool}
 
      MAYBE TODO
-     - implement MQTT disconnect so we dont generate
+     - implement MQTT disconnect so we dont generate pings
 
      To get TinyGPS++ to work, you have to repeatedly funnel the characters to it from the GPS module using the encode() method.
 
