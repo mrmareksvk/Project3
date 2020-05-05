@@ -5,10 +5,12 @@
     if connection. If storage array has 1 item use measurement array = same data
 
     if data and wifi: if storage>1 -upload storage, else upload measure array
-
+    maybe do struct for whole data block
     add power naps
     non blocking wifi setup
     request maintenance to root topic
+
+    struct
 */
 
 // LIBRARIES
@@ -25,8 +27,8 @@
 #define DHTTYPE DHT22                               // DHT22(AM2302)
 #define LDR_PIN A0
 #define IN_LED 2
-#define RXPinGPS 3                                  // <-----
-#define TXPinGPS 1                                  // <-----
+#define RXPinGPS 4                                  // <-----
+#define TXPinGPS 5                                  // <-----
 #define MQTT_SERVER "broker.hivemq.com"             // <----- LOCAL HOST
 #define MQTT_PORT 1883
 #define ROOT_TOPIC "baaa/"                          // Add / after
@@ -36,11 +38,12 @@
 float temperature, humidity;
 int light;                                          // light val max 1024
 bool dataToSend = false;                            // flag for data sending
+bool maintenanceNeeded = false;                     // flag for maintenance
 // Timers (49d. for millis roll-over)
 unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 5000;
 // ARRAYS for MQTT values
 char temp_a[6], hum_a[4], light_a[5];               // last received value
-char temp_storage[25][sizeof(temp_a)];              // ~2 hours of measurements
+char temp_storage[25][sizeof(temp_a)];              // ~2 hours storage
 char hum_storage[25][sizeof(hum_a)];
 char light_storage[25][sizeof(light_a)];
 // LATITUDE 90.123456 / LONGITUDE 180.123456 (2/3 + 1(float point) + 6 + delim)
@@ -93,7 +96,7 @@ TinyGPSPlus gps;
 SoftwareSerial ss(RXPinGPS, TXPinGPS);
 
 // DHT OBJECT
-DHT dht22(DHTPIN, DHTTYPE);
+DHT dht(DHTPIN, DHTTYPE);
 
 // NETWORK SETUP
 WiFiClient espClient;
@@ -110,7 +113,7 @@ const char* mqtt_psw = SECRET_MQTT_PSW;
 
 // FUNCTIONS
 void measureTemp(void) {
-  temperature = dht22.readTemperature();
+  temperature = dht.readTemperature();
   if (isnan(temperature)){
       // check storage array
       // and copy last value
@@ -121,7 +124,7 @@ void measureTemp(void) {
 }
 
 void measureHum(void) {
-  humidity = dht22.readHumidity();
+  humidity = dht.readHumidity();
   if (isnan(humidity)){
       // check storage array
       //temp_a = temp_storage[];
@@ -194,10 +197,10 @@ void setup() {
 
   // INIT
   pathAssign();                                     // init topic paths
-//Serial.begin(9600);                               // only for DEBUG
+  Serial.begin(9600);                               // only for DEBUG
   ss.begin(9600);                                   // GPS baudrate
 
-  dht22.begin();
+  dht.begin();
 
   // WiFi SETUP
   WiFi.mode(WIFI_STA);                              // WiFi works as station (NOT AP)
@@ -205,20 +208,24 @@ void setup() {
 
   WiFi.begin(ssid, password);
   wifi_station_set_auto_connect(true);
+  byte connectionAttemps = 0;
   while (WiFi.status() != WL_CONNECTED) {
     delay(200);
     digitalWrite(IN_LED, !digitalRead(IN_LED));
+    connectionAttemps++;
+    if (connectionAttemps >= 20){
+        break;                                      // Continue without network
+    }
   }
 
-  digitalWrite(IN_LED, HIGH);                        // anti-logic
+  digitalWrite(IN_LED, HIGH);                       // anti-logic
 
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
-
 
 }
 
 void loop() {
-  // -----------------  M Q T T  C O N N E C T I O N  -----------------
+  // -----------------  M Q T T  H A N D L E R
   if (!mqttClient.connected()) {
   // Loss of connection
     if (millis() >= lastReconnect + 2000) {     // reconnectInterval
@@ -234,7 +241,7 @@ void loop() {
     mqttClient.loop();
   }
 
-  // -----------------  M Q T T  S E N D I N G  5  M i n  -----------------
+  // -----------------  M E A S U R E M E N T S  5  M i n
   // testing set for 5 seconds
   if (millis() >= timer1 + interval) {
     timer1 = millis();
