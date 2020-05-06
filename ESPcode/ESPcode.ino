@@ -20,6 +20,7 @@
 #define IN_LED 2                                    // on-board LED on ESP=2
 #define RXPinGPS 4                                  // <-----
 #define TXPinGPS 5                                  // <-----
+#define DEEP_SLEEP 10e6                             // in microseconds
 #define MQTT_SERVER "broker.hivemq.com"             // <-----  LOCALHOST
 #define MQTT_PORT 1883                              // <-----  default
 #define ROOT_TOPIC "baaa"                           // Add '/' before device
@@ -144,7 +145,7 @@ bool measureLight(void) {                           // <----------
   /*
     if isnan or not in interval 0 - 1024 read last from buffer and copy it
   */
-  if(isnan(light) || !(0 <= light && light < 1024)){
+  if(isnan(light) || !(0 <= light && light <= 1024)){
       return false;
   }else{
       return true;
@@ -229,6 +230,11 @@ void dataStorage(void){                             // <----------!!!
 
 }
 
+void deepSleep(void){
+    system_deep_sleep_set_option(2);                // Wont make RF calibration
+    system_deep_sleep(DEEP_SLEEP);
+}
+
 void setup() {
   WiFi.disconnect();                                // Clears WiFi cache
 
@@ -236,15 +242,20 @@ void setup() {
   pinMode(IN_LED, OUTPUT);
   pinMode(LDR_PIN, INPUT);
 
+  measureLight();
+  if(light < light_treshold){
+      deepSleep();
+  }
+
   // INIT
   pathAssign();                                     // Init topic paths
-  Serial.begin(9600);                               // Only for DEBUG
+//Serial.begin(9600);                               // Only for DEBUG
   ss.begin(9600);                                   // GPS baudrate
 
   dht.begin();
 
   // WiFi SETUP
-  WiFi.mode(WIFI_STA);                              // WiFi works as station (NOT AP)
+  WiFi.mode(WIFI_STA);                              // WiFi as station (NOT AP)
   WiFi.setSleepMode(WIFI_NONE_SLEEP);               // Full power, prevents random disconnects
 
   WiFi.begin(ssid, password);
@@ -295,7 +306,6 @@ void loop() {
         mqttPublish();
     }else{
         // dataStorage();                           // <----- ! ! !
-
         delay(10);
     }
     timer1 = millis();
@@ -311,8 +321,7 @@ void loop() {
     }                                               // Off we go
     mqttClient.publish(ROOT_TOPIC, "sleep we go");
     delay(100);
-    system_deep_sleep_set_option(2);
-    system_deep_sleep(10000*1000);                  // 10 sec
+    deepSleep();
     }
 
 }

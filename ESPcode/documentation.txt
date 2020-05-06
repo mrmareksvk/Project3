@@ -95,3 +95,17 @@ DEBUG:
      buffer.available()	- how much free
      buffer.capacity()	- total size of buffer (how much can store)
      buffer.clear()		- reset whole buffer
+
+     DEEP_SLEEP
+
+     deep_sleep_set_option(0) The 108th Byte of init parameter decides whether RF calibration will
+     be performed after the chip wakes up from Deep-sleep.
+
+     deep_sleep_set_option(1) The chip will make RF calibration after waking up from Deep-sleep.
+     Power consumption is high.
+
+     deep_sleep_set_option(2) The chip won’t make RF calibration after waking up from Deep-sleep.
+     Power consumption is low.
+
+     deep_sleep_set_option(4) The chip won’t turn on RF after waking up from Deep-sleep. Power
+     consumption is the lowest, same as in Modem-sleep
