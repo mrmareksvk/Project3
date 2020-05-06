@@ -1,50 +1,41 @@
-/*TODO
-    if newdata verification put outside from 5 minute loop
-    every measure functions should have validation implemented
-    if measurement failed copy last item in array and append it
-    if connection. If storage array has 1 item use measurement array = same data
+/*
+    Embedded program of group Viziduc WireBark 2020 - Final 2nd. sem project
 
-    if data and wifi: if storage>1 -upload storage, else upload measure array
-    maybe do struct for whole data block
-    add power naps
-    non blocking wifi setup
-    request maintenance to root topic
-
-    struct
+    GPIO16(WAKE) and RST has to be connected for proper function of this program
 */
 
 // LIBRARIES
 #include <ESP8266WiFi.h>
 #include "Secret.h"                                 // Stores SSID , PSW
-#include <DHT.h>
-#include <PubSubClient.h>
-#include <TinyGPS++.h>
-#include <SoftwareSerial.h>
-#include <CircularBuffer.h>
+#include <DHT.h>                                    // TEM / HUM sensor
+#include <PubSubClient.h>                           // MQTT
+#include <TinyGPS++.h>                              // GPS
+#include <SoftwareSerial.h>                         // GPIO Serial connection
+// #include <CircularBuffer.h>                      // Better arrays
 
 // DEFINITIONS
-#define ARR_SIZ(a) (sizeof(a) / sizeof(*a))         // maybe use
-#define DHTPIN 13
+#define DHTPIN 13                                   // <-----
 #define DHTTYPE DHT22                               // DHT22(AM2302)
-#define LDR_PIN A0
-#define IN_LED 2
+#define LDR_PIN A0                                  // only analog pin on ESP=A0
+#define IN_LED 2                                    // on-board LED on ESP=2
 #define RXPinGPS 4                                  // <-----
 #define TXPinGPS 5                                  // <-----
-#define MQTT_SERVER "broker.hivemq.com"             // <----- LOCAL HOST
-#define MQTT_PORT 1883
-#define ROOT_TOPIC "baaa/"                          // Add / after
-#define DEVICE_NAME "sensor1"
+#define MQTT_SERVER "broker.hivemq.com"             // <-----  LOCALHOST
+#define MQTT_PORT 1883                              // <-----  default
+#define ROOT_TOPIC "baaa"                           // Add '/' before device
+#define DEVICE_NAME "/sensor1"                      // <-----  original
 
-// VARIABLES
-float temperature, humidity;
+// VARIABLES and CONSTANTS
+float temperature, humidity;                        // raw dht data
 uint16 light;                                       // light val max 1024
+const uint16 light_treshold = 400;                  // minimal value to operate
 bool dataToSend = false;                            // flag for data sending
 bool maintenanceNeeded = false;                     // flag for maintenance
-// Timers (49d. for millis roll-over)
+// TIMERS (49d. for millis roll-over)
 unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 5000;
 // ARRAYS for MQTT values
-char temp_a[6], hum_a[4], light_a[5];               // last received value
-
+char temp_a[6], hum_a[4], light_a[5];               // char buffers for publish
+// -WORK-IN-PROGRESS
 struct Storage {                                    // uint16(short) on light ?
     byte index;                                     // 1 byte
     float temp[25];                                 // 4 * 25 = 100 byte
@@ -54,10 +45,10 @@ struct Storage {                                    // uint16(short) on light ?
     double lon[25];                                 // 8 * 25 = 200 byte
     uint32 date[25];                                // 4 * 25 = 100 byte
     uint32 time[25];                                // 4 * 25 = 100 byte
-}                                                   // total == 901 byte
-
-// LATITUDE 90.123456 / LONGITUDE 180.123456 (2/3 + 1(float point) + 6 + delim)
+};                                                  // total == 901 byte
+// GPS DATA VARIABLES
 double latitude, longitude;
+uint32 date_raw, time_raw;
 char lat_a[10], lon_a[11];
 char date_a[7], time_a[9];
 // MQTT TOPIC PATHS
@@ -122,39 +113,77 @@ const char* mqtt_user = SECRET_MQTT_USER;
 const char* mqtt_psw = SECRET_MQTT_PSW;
 
 // FUNCTIONS
-void measureTemp(void) {
+bool measureTemp(void) {                            // <---------
   temperature = dht.readTemperature();
-  if (isnan(temperature)){
-      // check storage array
-      // and copy last value
-      return;
+  /*
+    if isnan read last from buffer and copy it
+  */
+  if(isnan(temperature)){
+      return false;
   }else{
-  dtostrf(temperature, 4, 1, temp_a);               // MQTT: pass float to char array 4 long, 1 after dec. point
+      return true;
   }
+
 }
 
-void measureHum(void) {
+bool measureHum(void) {                             // <----------
   humidity = dht.readHumidity();
-  if (isnan(humidity)){
-      // check storage array
-      //temp_a = temp_storage[];
-      return;
+  /*
+    if isnan read last from buffer and copy it
+  */
+  if(isnan(humidity)){
+      return false;
   }else{
-  dtostrf(humidity, 3, 0, hum_a);                   // check docu > dtostrf
+      return true;
+  }
+
+}
+
+bool measureLight(void) {                           // <----------
+  light = analogRead(LDR_PIN);
+  /*
+    if isnan or not in interval 0 - 1024 read last from buffer and copy it
+  */
+  if(isnan(light) || !(0 <= light && light < 1024)){
+      return false;
+  }else{
+      return true;
   }
 }
 
-void measureLight(void) {                           // < do validity check
-  light = analogRead(LDR_PIN);
-//itoa(light, light_a, 10);                         // check docu > itoa
-  sprintf(light_a, "%d", light);
+void gpsParser(void) {
+  if (ss.available() > 0) {
+    gps.encode(ss.read());
+
+    if (gps.location.isUpdated()) {
+        latitude = gps.location.lat();
+        longitude = gps.location.lng();
+    }
+
+    if (gps.date.isUpdated()){
+        date_raw = gps.date.value();
+    }
+
+    if (gps.time.isUpdated()){
+        time_raw = gps.time.value();
+    }
+
+  }
+}
+
+unsigned long blink = 0;
+void blinker(void){
+    if(millis()>=blink+1000){
+        digitalWrite(IN_LED, !digitalRead(IN_LED));
+        blink = millis();
+    }
 }
 
 // Non-blocking mqtt connection function
 boolean reconnect(void) {
   const char* clientId = DEVICE_NAME;
   if (mqttClient.connect(clientId, mqtt_user, mqtt_psw)) {
-      mqttClient.publish(ROOT_TOPIC, DEVICE_NAME);
+      sensorACK();
       if(dataToSend){
           mqttPublish();
       }
@@ -163,6 +192,15 @@ boolean reconnect(void) {
 }
 
 void mqttPublish(void) {
+  dtostrf(temperature, 4, 1, temp_a);               // Check docu > dtostrf
+  dtostrf(humidity, 3, 0, hum_a);
+  sprintf(light_a, "%d", light);
+  dtostrf(latitude, 9, 6, lat_a);
+  dtostrf(longitude, 10, 6, lon_a);
+  sprintf(date_a, "%d", date_raw);                  // DDMMYY
+  sprintf(time_a, "%d", time_raw);                  // HHMMSSCC
+  time_a[strlen(time_a)-2] = '\0';                  // Removes centy-seconds
+
   mqttClient.publish(temp_topic, temp_a);
   mqttClient.publish(hum_topic, hum_a);
   mqttClient.publish(light_topic, light_a);
@@ -170,45 +208,37 @@ void mqttPublish(void) {
   mqttClient.publish(lon_topic, lon_a);
   mqttClient.publish(date_topic, date_a);
   mqttClient.publish(time_topic, time_a);
+
   dataToSend = false;
 }
 
-void gpsParser(void) {
-  if (ss.available() > 0) {
-    gps.encode(ss.read());
-    if (gps.location.isUpdated()) {
-        latitude = gps.location.lat();
-        dtostrf(latitude, 9, 6, lat_a);
-
-        longitude = gps.location.lng();
-        dtostrf(longitude, 10, 6, lon_a);
+void sensorACK(void){
+    char ack_msg[20];
+    if(maintenanceNeeded){
+        strcpy(ack_msg, "maintenance");             // Error
+        strcat(ack_msg, DEVICE_NAME);
+        mqttClient.publish(ROOT_TOPIC, ack_msg);
+    }else{
+        strcpy(ack_msg, "working");                 // All good
+        strcat(ack_msg, DEVICE_NAME);
+        mqttClient.publish(ROOT_TOPIC, ack_msg);
     }
+}
 
-    if (gps.date.isUpdated()){
-        // final array,string "%d", value
-        sprintf(date_a, "%d", gps.date.value());    // DDMMYY
-    }
+void dataStorage(void){                             // <----------!!!
 
-    if (gps.time.isUpdated()){
-        // final array,string "%d", value
-        sprintf(time_a, "%d", gps.time.value());    // HHMMSSCC
-        time_a[strlen(time_a)-2] = '\0';            // remove centy-seconds
-    }
-
-  }
 }
 
 void setup() {
-  WiFi.disconnect();                                // clears WiFi cache
-  // delay(50);
+  WiFi.disconnect();                                // Clears WiFi cache
 
   // IO setup
   pinMode(IN_LED, OUTPUT);
   pinMode(LDR_PIN, INPUT);
 
   // INIT
-  pathAssign();                                     // init topic paths
-  Serial.begin(9600);                               // only for DEBUG
+  pathAssign();                                     // Init topic paths
+  Serial.begin(9600);                               // Only for DEBUG
   ss.begin(9600);                                   // GPS baudrate
 
   dht.begin();
@@ -229,40 +259,57 @@ void setup() {
     }
   }
 
-  digitalWrite(IN_LED, HIGH);                       // anti-logic
+  digitalWrite(IN_LED, HIGH);                       // Anti-logic
 
   mqttClient.setServer(MQTT_SERVER, MQTT_PORT);
+
+  // data filler and maintenance invoker
+  if (measureTemp() == false){maintenanceNeeded=true;}
+  if (measureHum() == false){maintenanceNeeded=true;}
+  if (measureLight() == false){maintenanceNeeded=true;}
+
 
 }
 
 void loop() {
-  // -----------------  M Q T T  H A N D L E R
-  if (!mqttClient.connected()) {
-  // Loss of connection
-    if (millis() >= lastReconnect + 2000) {     // reconnectInterval
+  if(light >= light_treshold && maintenanceNeeded == false){
+  // M Q T T  H A N D L E R
+  if (!mqttClient.connected()) {                    // Loss of connection
+    if (millis() >= lastReconnect + 2000) {         // reconnectInterval
       lastReconnect = millis();
-      // Try reconnect
-      if (reconnect()) {
-        // Succesfull reconection
-        lastReconnect = 0;
+      if (reconnect()) {                            // Try reconnect
+        lastReconnect = 0;                          // Succesfull reconection
       }
     }
-  } else {
-    // connected, keep calling for mqtt
+} else {                                        // Connected-keep MQTT alive
     mqttClient.loop();
   }
 
-  // -----------------  M E A S U R E M E N T S  5  M i n
-  // testing set for 5 seconds
+  // M E A S U R E M E N T S  5  M i n (TESTING SET FOR 5 SEC)
   if (millis() >= timer1 + interval) {
-    timer1 = millis();
     measureTemp();
     measureHum();
     measureLight();
-    dataToSend = true;
-    mqttPublish();
+
+    if(WiFi.status() == WL_CONNECTED && mqttClient.connected()){
+        mqttPublish();
+    }else{
+        // dataStorage();                           // <----- ! ! !
+        delay(10);
+    }
+    timer1 = millis();
   }
 
-  gpsParser();
+  gpsParser();                                      //  Funnel data to GPS obj
+  blinker();                                        // Debug
+
+  }else{
+    //sleep
+    if(maintenanceNeeded){
+        sensorACK();
+    }                                               // Off we go
+    mqttClient.publish(ROOT_TOPIC, "sleep we go");
+    system_deep_sleep(10000*1000);                  // 10 sec
+    }
 
 }

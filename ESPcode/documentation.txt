@@ -16,6 +16,9 @@ PROGRAM:
      http://www.cplusplus.com/reference/string/string/substr/
 
 
+     printf()
+     // final array,string "%d", value
+
      light > change to lux? - CHECK data sheet for LDR
 
      WiFi reconnect function
@@ -45,7 +48,7 @@ DEBUG:
 
 
      c_types.h ESP8266
-     
+
      typedef signed char         sint8_t;
      typedef signed short        sint16_t;
      typedef signed long         sint32_t;
@@ -74,3 +77,21 @@ DEBUG:
      typedef unsigned long long  u64;
      typedef float               real32;
      typedef double              real64;
+
+     CircularBuffer
+
+     buffer.unshift() 	- add item to begining
+     buffer.push()		- add item to the end
+
+     buffer.shift()		- take item from begining and delete item
+     buffer.pop()		- take item from end and delete item
+
+     buffer.first()		- copy first
+     buffer.last()		- copy last
+
+     buffer.isEmpty()	- bool
+     buffer.isFull()	- bool
+     buffer.size()		- how much in buffer right now
+     buffer.available()	- how much free
+     buffer.capacity()	- total size of buffer (how much can store)
+     buffer.clear()		- reset whole buffer
