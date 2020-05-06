@@ -281,7 +281,7 @@ void loop() {
         lastReconnect = 0;                          // Succesfull reconection
       }
     }
-} else {                                        // Connected-keep MQTT alive
+} else {                                            // Connected-keep MQTT alive
     mqttClient.loop();
   }
 
@@ -295,20 +295,23 @@ void loop() {
         mqttPublish();
     }else{
         // dataStorage();                           // <----- ! ! !
+
         delay(10);
     }
     timer1 = millis();
   }
 
-  gpsParser();                                      //  Funnel data to GPS obj
+  gpsParser();                                      // Funnel data to GPS obj
   blinker();                                        // Debug
 
   }else{
     //sleep
-    if(maintenanceNeeded){
+    if(maintenanceNeeded == true){
         sensorACK();
     }                                               // Off we go
     mqttClient.publish(ROOT_TOPIC, "sleep we go");
+    delay(100);
+    system_deep_sleep_set_option(2);
     system_deep_sleep(10000*1000);                  // 10 sec
     }
 
