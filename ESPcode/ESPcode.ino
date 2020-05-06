@@ -20,6 +20,7 @@
 #include <PubSubClient.h>
 #include <TinyGPS++.h>
 #include <SoftwareSerial.h>
+#include <CircularBuffer.h>
 
 // DEFINITIONS
 #define ARR_SIZ(a) (sizeof(a) / sizeof(*a))         // maybe use
@@ -36,16 +37,25 @@
 
 // VARIABLES
 float temperature, humidity;
-int light;                                          // light val max 1024
+uint16 light;                                       // light val max 1024
 bool dataToSend = false;                            // flag for data sending
 bool maintenanceNeeded = false;                     // flag for maintenance
 // Timers (49d. for millis roll-over)
 unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 5000;
 // ARRAYS for MQTT values
 char temp_a[6], hum_a[4], light_a[5];               // last received value
-char temp_storage[25][sizeof(temp_a)];              // ~2 hours storage
-char hum_storage[25][sizeof(hum_a)];
-char light_storage[25][sizeof(light_a)];
+
+struct Storage {                                    // uint16(short) on light ?
+    byte index;                                     // 1 byte
+    float temp[25];                                 // 4 * 25 = 100 byte
+    float hum[25];                                  // 4 * 25 = 100 byte
+    uint16 light[25];                               // 2 * 25 = 50 byte
+    double lat[25];                                 // 8 * 25 = 200 byte
+    double lon[25];                                 // 8 * 25 = 200 byte
+    uint32 date[25];                                // 4 * 25 = 100 byte
+    uint32 time[25];                                // 4 * 25 = 100 byte
+}                                                   // total == 901 byte
+
 // LATITUDE 90.123456 / LONGITUDE 180.123456 (2/3 + 1(float point) + 6 + delim)
 double latitude, longitude;
 char lat_a[10], lon_a[11];
@@ -136,7 +146,8 @@ void measureHum(void) {
 
 void measureLight(void) {                           // < do validity check
   light = analogRead(LDR_PIN);
-  itoa(light, light_a, 10);                         // check docu > itoa
+//itoa(light, light_a, 10);                         // check docu > itoa
+  sprintf(light_a, "%d", light);
 }
 
 // Non-blocking mqtt connection function
