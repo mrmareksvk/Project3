@@ -128,9 +128,18 @@ OTHER:
      The chip won’t turn on RF after waking up from Deep-sleep.
      • Power consumption is the lowest, same as in Modem-sleep
 
+     LIGHT-SLEEP: - - - - - - - - - - - - - - - - - - - - - - - - - -
+        3.7. Force Sleep APIs in ESP8266 NON-OS SDK API Reference p.69
+
+        wifi_set_sleep_type(LIGHT_SLEEP_T);
+        Auto Light-sleep, ESP8266 automatically enters Light-sleep mode when connected to Wi-Fi with the CPU idle.
+
      PubSubClient.h - - - - - - - - - - - - - - - - - - - - - - - - -
      https://pubsubclient.knolleary.net/
 
      int publish (topic, payload) {const char[]; const char[]}
      int publish (topic, payload, length) {const char[]; byte[]; byte}
      int publish (topic, payload, retained) {const char[]; const char[]; bool}
+
+     ESP: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+     https://www.espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf

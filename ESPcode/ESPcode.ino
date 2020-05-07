@@ -34,6 +34,7 @@ uint16 light;                                       // light val max 1024
 const uint16 light_treshold = 400;                  // minimal value to operate
 bool dataToSend = false;                            // flag for data sending
 bool maintenanceNeeded = false;                     // flag for maintenance
+bool maintenanceMode = false;						// mode flag
 // TIMERS (49d. for millis roll-over)
 unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 5000;
 // ARRAYS for MQTT values
@@ -62,8 +63,8 @@ char date_topic[20], time_topic[20];
 // MQTT ASSIGN PATH FUNCTION
 void pathAssign(void){
 // temperature
-	strcpy(temp_topic, ROOT_TOPIC);                     // Check readme.txt
-	strcat(temp_topic, DEVICE_NAME);                    // Check readme.txt
+	strcpy(temp_topic, ROOT_TOPIC);                   	// Check readme.txt
+	strcat(temp_topic, DEVICE_NAME);                 	// Check readme.txt
 	strcat(temp_topic, "/temp");
 // humidity
 	strcpy(hum_topic, ROOT_TOPIC);
@@ -106,8 +107,8 @@ DHT dht(DHTPIN, DHTTYPE);
 WiFiClient espClient;
 
 /*Put your SSID & Password*/
-const char* ssid = SECRET_SSID;                     //Secret.h
-const char* password = SECRET_PSW;                  //Secret.h
+const char* ssid = SECRET_SSID;							// Secret.h
+const char* password = SECRET_PSW;						// Secret.h
 
 // MQTT SETUP
 PubSubClient mqttClient(espClient);
@@ -116,7 +117,7 @@ const char* mqtt_user = SECRET_MQTT_USER;
 const char* mqtt_psw = SECRET_MQTT_PSW;
 
 // FUNCTIONS
-bool measureTemp(void) {                            // <---------
+bool measureTemp(void) {                            	// <---------
 	temperature = dht.readTemperature();
 	/*
 	   if isnan read last from buffer and copy it
@@ -129,7 +130,7 @@ bool measureTemp(void) {                            // <---------
 
 }
 
-bool measureHum(void) {                             // <----------
+bool measureHum(void) {                             	// <----------
 	humidity = dht.readHumidity();
 	/*
 	   if isnan read last from buffer and copy it
@@ -142,7 +143,7 @@ bool measureHum(void) {                             // <----------
 
 }
 
-bool measureLight(void) {                           // <----------
+bool measureLight(void) {                           	// <----------
 	light = analogRead(LDR_PIN);
 	/*
 	   if isnan or not in interval 0 - 1024 read last from buffer and copy it
@@ -232,9 +233,14 @@ void dataStorage(void){                             	// <----------!!!
 
 }
 
-void deepSleep(void){
+void deepSleep(void){									// Erase RAM
 	system_deep_sleep_set_option(2);                    // Check readme.txt
 	system_deep_sleep(DEEP_SLEEP);
+}
+
+void lightSleep(void){
+	wifi_set_sleep_type(LIGHT_SLEEP_T);
+	delay(DEEP_SLEEP/1000);								// change micro to milli
 }
 
 void setup() {
@@ -246,11 +252,12 @@ void setup() {
 	if(light < light_treshold) {
 		deepSleep();
 	} else {
-        WiFi.disconnect();                                  // Clears WiFi cache
+					// Check readme.txt
+        WiFi.disconnect();                             	// Clears WiFi cache
 
 		// INIT
 		pathAssign();                                   // Init topic paths
-        //Serial.begin(9600);                               // Only for DEBUG
+        //Serial.begin(9600);                           // Only for DEBUG
 		ss.begin(9600);                                 // GPS baudrate
 
 		dht.begin();
@@ -284,7 +291,7 @@ void setup() {
 }
 
 void loop() {
-	if(light >= light_treshold && maintenanceNeeded == false) {
+	if(light >= light_treshold && maintenanceMode == false) {
 		// M Q T T  H A N D L E R
 		if (!mqttClient.connected()) {			// Loss of connection
 			if (millis() >= lastReconnect + 2000) {   // reconnectInterval
@@ -295,6 +302,11 @@ void loop() {
 			}
 		} else {                                            // Connected-keep MQTT alive
 			mqttClient.loop();
+		}
+
+		// C O D E  P A R T
+		if(WiFi.status() == WL_CONNECTED && mqttClient.connected() && maintenanceNeeded) {
+			maintenanceMode = true;
 		}
 
 		// M E A S U R E M E N T S  5  M i n (TESTING SET FOR 5 SEC)
@@ -316,13 +328,12 @@ void loop() {
 		blinker();                                          // Debug
 
 	}else{
-		//sleep
-		if(maintenanceNeeded == true) {
-			sensorACK();
-		}                                                   // Off we go
+		sensorACK();
 		mqttClient.publish(ROOT_TOPIC, "sleep we go");
 		delay(100);
-		deepSleep();
+		/*If arrays are empty (or only 1) deepSleep*/
+		// deepSleep();
+		lightSleep();
 	}
 
 }
