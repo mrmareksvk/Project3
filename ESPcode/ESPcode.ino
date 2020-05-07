@@ -1,7 +1,9 @@
 /*
     Embedded program of group Viziduc WireBark 2020 - Final 2nd. sem project
 
-    GPIO16(WAKE) and RST has to be connected for proper function of this program
+	Check readme.txt before working with this programe!
+
+    GPIO16(WAKE) and RST has to be connected for proper function of this programe!
  */
 
 // LIBRARIES
@@ -24,7 +26,7 @@
 #define MQTT_SERVER "broker.hivemq.com"             // <-----  LOCALHOST
 #define MQTT_PORT 1883                              // <-----  default
 #define ROOT_TOPIC "baaa"                           // Add '/' before device
-#define DEVICE_NAME "/sensor1"                      // <-----  original
+#define DEVICE_NAME "/sensor1"                      // <-----  original w. '/'
 
 // VARIABLES and CONSTANTS
 float temperature, humidity;                        // raw dht data
@@ -37,15 +39,15 @@ unsigned long lastRecon = 0, timer1 = 0, lastReconnect = 0, interval = 5000;
 // ARRAYS for MQTT values
 char temp_a[6], hum_a[4], light_a[5];               // char buffers for publish
 // -WORK-IN-PROGRESS
-struct Storage {                                    // uint16(short) on light ?
-	byte index;                                         // 1 byte
-	float temp[25];                                     // 4 * 25 = 100 byte
-	float hum[25];                                      // 4 * 25 = 100 byte
-	uint16 light[25];                                   // 2 * 25 = 50 byte
-	double lat[25];                                     // 8 * 25 = 200 byte
-	double lon[25];                                     // 8 * 25 = 200 byte
-	uint32 date[25];                                    // 4 * 25 = 100 byte
-	uint32 time[25];                                    // 4 * 25 = 100 byte
+struct Storage {
+	byte index;                                		// 1 byte
+	float temp[25];                                 // 4 * 25 = 100 byte
+	float hum[25];                                  // 4 * 25 = 100 byte
+	uint16 light[25];                               // 2 * 25 = 50 byte
+	double lat[25];                                 // 8 * 25 = 200 byte
+	double lon[25];                                 // 8 * 25 = 200 byte
+	uint32 date[25];                                // 4 * 25 = 100 byte
+	uint32 time[25];                                // 4 * 25 = 100 byte
 };                                                  // total == 901 byte
 // GPS DATA VARIABLES
 double latitude, longitude;
@@ -60,8 +62,8 @@ char date_topic[20], time_topic[20];
 // MQTT ASSIGN PATH FUNCTION
 void pathAssign(void){
 // temperature
-	strcpy(temp_topic, ROOT_TOPIC);                     // copies and add delimiter
-	strcat(temp_topic, DEVICE_NAME);                    // appends by override delim
+	strcpy(temp_topic, ROOT_TOPIC);                     // Check readme.txt
+	strcat(temp_topic, DEVICE_NAME);                    // Check readme.txt
 	strcat(temp_topic, "/temp");
 // humidity
 	strcpy(hum_topic, ROOT_TOPIC);
@@ -193,9 +195,9 @@ boolean reconnect(void) {
 }
 
 void mqttPublish(void) {
-	dtostrf(temperature, 4, 1, temp_a);                 // Check docu > dtostrf
+	dtostrf(temperature, 4, 1, temp_a);                 // Check readme.txt
 	dtostrf(humidity, 3, 0, hum_a);
-	sprintf(light_a, "%d", light);
+	sprintf(light_a, "%d", light);						// Check readme.txt
 	dtostrf(latitude, 9, 6, lat_a);
 	dtostrf(longitude, 10, 6, lon_a);
 	sprintf(date_a, "%d", date_raw);                    // DDMMYY
@@ -213,25 +215,25 @@ void mqttPublish(void) {
 	dataToSend = false;
 }
 
-void sensorACK(void){
+void sensorACK(void){									// ACK to ROOT_TOPIC
 	char ack_msg[20];
 	if(maintenanceNeeded) {
-		strcpy(ack_msg, "maintenance");                     // Error
+		strcpy(ack_msg, "maintenance");
 		strcat(ack_msg, DEVICE_NAME);
 		mqttClient.publish(ROOT_TOPIC, ack_msg);
 	}else{
-		strcpy(ack_msg, "working");                         // All good
+		strcpy(ack_msg, "working");
 		strcat(ack_msg, DEVICE_NAME);
 		mqttClient.publish(ROOT_TOPIC, ack_msg);
 	}
 }
 
-void dataStorage(void){                             // <----------!!!
+void dataStorage(void){                             	// <----------!!!
 
 }
 
 void deepSleep(void){
-	system_deep_sleep_set_option(2);                    // Wont make RF calibration
+	system_deep_sleep_set_option(2);                    // Check readme.txt
 	system_deep_sleep(DEEP_SLEEP);
 }
 
@@ -284,10 +286,10 @@ void setup() {
 void loop() {
 	if(light >= light_treshold && maintenanceNeeded == false) {
 		// M Q T T  H A N D L E R
-		if (!mqttClient.connected()) {                      // Loss of connection
-			if (millis() >= lastReconnect + 2000) {             // reconnectInterval
+		if (!mqttClient.connected()) {			// Loss of connection
+			if (millis() >= lastReconnect + 2000) {   // reconnectInterval
 				lastReconnect = millis();
-				if (reconnect()) {                                  // Try reconnect
+				if (reconnect()) {         			// Try reconnect
 					lastReconnect = 0;                                  // Succesfull reconection
 				}
 			}
