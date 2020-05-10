@@ -1,6 +1,5 @@
 import paho.mqtt.client as mqtt
-from datetime import datetime
-from datetime import timezone
+from datetime import datetime, timezone
 
 
 class Sensor_MQTT:
