@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <title>Map</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+        <style media="screen">
+            #map {position: absolute; top: 0; bottom:0; left: 0; right: 0;}
+        </style>
+    </head>
+    <body>
+        <div id = "map">
+        <script>
+            var map = L.map('map').setView([56.12,10.16], 13);
+
+            L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=25GqmgtwruyjOSuODtXo', {attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
+        }).addTo(map);
+
+        var marker = L.marker([56.11988, 10.15921]).addTo(map);
+        marker.bindPopup("<b>/sensor1&nbsp;<span style='color:green;float:right;'>ONLINE</span></b><hr>Last measurement 11.5.2020 12:25<br><br><table border='1' style='margin-left:auto;margin-right:auto;'><tbody><tr><td>TEMP</td><td>HUM</td><td>LIGHT</td></tr><tr><td>20.2</td><td>40%</td><td>970</td></tr></tbody></table><br>");
+
+        var marker2 = L.marker([56.11919, 10.15833]).addTo(map);
+        marker2.bindPopup("<b>/sensor2&nbsp;<span style='color:red;float:right;'>OFFLINE</span></b><hr>Last measurement 11.5.2020 12:35<br><br><table border='1' style='margin-left:auto;margin-right:auto;'><tbody><tr><td>TEMP</td><td>HUM</td><td>LIGHT</td></tr><tr><td>19.8</td><td>45%</td><td>700</td></tr></tbody></table><br>");
+
+
+map.on('click', onMapClick);
+
+        </script>
+        </div>
+    </body>
+</html>
