@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset = "utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="refresh" content="4.9" >
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css" />
+    <title>Database</title>
+    <style type="text/css">
+        body { background-color: white; }
+    </style>
+</head>
+
+<body class="body">
+    <div class="jumbotron text-center">
+        <div class="page-header">
+            <h3 class="text-primary">Sensor database:</h3>
+        </div>
+        <table class="table table-striped table-bordered table-hover">
+            <tr>
+                <th>Key</th> 
+                <th>Temperature</th>
+                <th>Humidity</th>
+                <th>Light</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Timestamp</th>              
+            </tr>
+
+            {% for measure in measurement %}
+                <tr>
+                    <td>{{measure[0]}}</td>
+                    <td>{{measure[1]}}</td>
+                    <td>{{measure[2]}}</td>
+                    <td>{{measure[3]}}</td>
+                    <td>{{measure[4]}}</td>
+                    <td>{{measure[5]}}</td>
+                    <td>{{measure[6]}}</td>
+                </tr>
+            {% endfor %}
+
+
+
+
+        </table>
+
+    </div>  
+
+</body>
+
+</html>
