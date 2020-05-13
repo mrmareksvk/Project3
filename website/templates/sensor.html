@@ -36,9 +36,7 @@
     <div class="container">
 
         <div class="row justify-content-center">
-            {% if number %}
-            <h2 class="display-2 d-flex">Data from Classroom #{{number}}</h2>
-            {% endif %}
+            <h2 class="display-2 d-flex">Data from #{{data.name}}</h2>
         </div>
 
         <hr>
@@ -51,51 +49,33 @@
 
             <div class="col">
                 <p class="font-weight-bold">Latitude </p>
-                {% if lat %}
-                <p class="font-weight-bold text-primary">{{lat}}</p>
-                {% endif %}
+                <p class="font-weight-bold text-primary">{{data.lat}}</p>
             </div>
 
             <div class="col">
                 <p class="font-weight-bold">Longitude</p>
-                {% if lon %}
-                <p class="font-weight-bold text-primary">{{lon}}</p>
-                {% endif %}
+                <p class="font-weight-bold text-primary">{{data.lon}}</p>
             </div>
 
             <div class="col">
                 <p class="font-weight-bold">Date & Time</p>
-                {% if dt %}
-                <p class="font-weight-bold text-primary">{{dt}}</p>
-                {% endif %}
+                <p class="font-weight-bold text-primary">{{data.datetime}}</p>
             </div>
 
-            <!-- <div class="col">
-              <p class="font-weight-bold">Time</p>
-              {% if time %}
-              <p class="font-weight-bold text-primary">12:12:12</p>
-              {% endif %}
-          </div> -->
 
             <div class="col">
                 <p class="font-weight-bold">Temperature </p>
-                {% if temp %}
-                <p class="font-weight-bold text-primary">{{temp}}</p>
-                {% endif %}
+                <p class="font-weight-bold text-primary">{{data.temp}}</p>
             </div>
 
             <div class="col">
                 <p class="font-weight-bold">Humidity</p>
-                {% if hum %}
-                <p class="font-weight-bold text-primary">{{hum}} %</p>
-                {% endif %}
+                <p class="font-weight-bold text-primary">{{data.hum}} %</p>
             </div>
 
             <div class="col justify-content-center">
                 <p class="font-weight-bold">Light intensity</p>
-                {% if lux %}
-                <p class="font-weight-bold text-primary"> {{lux}} lux</p>
-                {% endif %}
+                <p class="font-weight-bold text-primary"> {{data.light}} lux</p>
             </div>
 
 

@@ -24,6 +24,7 @@ def dataMap():
         data[key] = values[len(data)]
 #  end of work in progress
 
+
 def mapData():
     data_a = [
         {
@@ -56,9 +57,13 @@ def homePage():
     return render_template("index.html", data_a=data_a)
 
 
-@app.route("/sensor")
-def sensorPage():
-    return render_template("sensor.html")
+@app.route("/sensor<sensorID>")
+def sensorPage(sensorID=None):
+    data_a = mapData()
+    for data in data_a:
+        if data['name'] == 'sensor%s' % (sensorID):
+            data_display = data
+    return render_template("sensor.html", data=data_display)
 
 
 if __name__ == "__main__":
