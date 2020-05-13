@@ -80,13 +80,73 @@
 
 
         </div>
+        <div>
+
+        <select  onchange="choice(this.value)">
+            <option value='temp10'>Temperature 10 </option>
+            <option value='temp20'>Temperature 20 </option>
+            <option value='temp30'>Temperature 30 </option>
+            <option value='hum10'>Humidity 10 </option>
+            <option value='hum20'>Humidity 20 </option>
+            <option value='hum30'>Humidity 30 </option>
+            <option value='light10'>Light intensity 10 </option>
+            <option value='light20'>Light intensity 20 </option>
+            <option value='light30'>Light integrity 30 </option>
+            <option value='temp&hum10'>Temperature & Humidity 10 </option>
+            <option value='temp&hum20'>Temperature & Humidity 20 </option>
+            <option value='temp&hum30'>Temperature & Humidity 30 </option>
+        </select>
+    </div>
 
         <div class="container">
-            <img src='../static/temperature_sensor1.png' width="480" height="360" />
 
-            <img src='../static/humidity_sensor1.png' width="480" height="360" />
+            <img src=".{{filename}}" width="480" height="360"/>
+
         </div>
+    </div>
+<script>
+    function choice(graph_choice){
+        if (graph_choice =='temp10'){
+            window.location.href = "http://127.0.0.1:5000/sensor1/temp10";
+            }
+        else if (graph_choice =='temp20'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/temp20";
+            }
+        else if (graph_choice =='temp30'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/temp30";
+            }
+        else if (graph_choice =='hum10'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/hum10";
+            }
+        else if (graph_choice =='hum20'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/hum20";
+            }
+        else if (graph_choice =='hum30'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/hum30";
+            }
+        else if (graph_choice =='light10'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/light10";
+            }
+        else if (graph_choice =='light20'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/light20";
+            }
+        else if (graph_choice =='light30'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/light30";
+            }
+        else if (graph_choice =='temp&hum10'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum10";
+            }
+        else if (graph_choice =='temp&hum20'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum20";
+            }
+        else if (graph_choice =='temp&hum30'){
+                window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum30";
+            }
+        }
+</script>
+
 
 </body>
 
+</html>
 </html>

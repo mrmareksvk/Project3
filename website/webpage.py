@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib.figure import Figure
 from flask import Flask, render_template
 import psycopg2
 import psycopg2.sql
@@ -52,6 +55,62 @@ def readDB():
     return latest_values
 
 
+def data_graph(data, tablename, limit):
+    con = psycopg2.connect(
+        host="127.0.0.1",
+        port="5432",
+        database="test",
+        user="test",
+        password="test"
+    )
+    cur = con.cursor()
+    cur.execute(psycopg2.sql.SQL("SELECT {}, dt FROM {} ORDER BY dt DESC LIMIT %s").format(
+        psycopg2.sql.Identifier(data), psycopg2.sql.Identifier(tablename)), (limit,))
+    dates = []
+    temperatures = []
+    humidities = []
+    lights = []
+    path = './static/'
+
+    for row in cur.fetchall():
+        if data == 'temperature, humidity':
+            temperatures.append(row[0])
+            humidities.append(row[1])
+            dates.append(row[2])
+        else:
+            dates.append(row[1])
+            if data == 'temperature':
+                temperatures.append(row[0])
+            elif data == 'humidity':
+                humidities.append(row[0])
+            else:
+                lights.append(row[0])
+    fig = Figure()
+    ax = fig.subplots()
+    if data == 'temperature':
+        ax.plot(dates, temperatures)
+        filename = path+'temperature{}{}.png'.format(limit, tablename)
+        print(filename)
+        fig.savefig(filename)
+    elif data == 'humidity':
+        ax.plot(dates, humidities, '-')
+        filename = path+'humidity{}{}.png'.format(limit, tablename)
+        fig.savefig(filename)
+    elif data == 'lux':
+        ax.plot(dates, lights, '-')
+        filename = path+'light{}{}.png'.format(limit, tablename)
+        fig.savefig(filename)
+    elif data == 'temperature, humidity':
+        filename = path+'temperature,humidity{}{}.png'.format(limit, tablename)
+        ax.plot(dates, temperatures, humidities, '-')
+        fig.savefig(filename)
+    fig.clear()
+    cur.close()
+    con.close()
+    return filename
+
+
+
 @app.route("/")
 def homePage():
     data_a = readDB()
@@ -59,12 +118,45 @@ def homePage():
 
 
 @app.route("/sensor<sensorID>")
-def sensorPage(sensorID=None):
+@app.route("/sensor<sensorID>/<something>")
+def sensorPage(sensorID=None, something=None):
+    tablename = 'sensor%s' % (sensorID)
     data_a = readDB()
     for data in data_a:
-        if data['name'] == 'sensor%s' % (sensorID):
+        if data['name'] == tablename:
             data_display = data
-    return render_template("sensor.html", data=data_display)
+
+    if something is not None:
+        if '10' in something:
+            if 'temp' in something:
+                filename = data_graph('temperature', tablename, 10)
+            elif 'hum' in something:
+                filename = data_graph('humidity', tablename, 10)
+            elif 'light' in something:
+                filename = data_graph('lux', tablename, 10)
+            elif 'temp&hum' in something:
+                filename = data_graph('temperature, humidity', tablename, 10)
+        elif '20' in something:
+            if 'temp' in something:
+                filename = data_graph('temperature', tablename, 20)
+            elif 'hum' in something:
+                filename = data_graph('humidity', tablename, 20)
+            elif 'light' in something:
+                filename = data_graph('lux', tablename, 20)
+            elif 'temp&hum' in something:
+                filename = data_graph('temperature, humidity', tablename, 20)
+        elif '30' in something:
+            if 'temp' in something:
+                filename = data_graph('temperature', tablename, 30)
+            elif 'hum' in something:
+                filename = data_graph('humidity', tablename, 30)
+            elif 'light' in something:
+                filename = data_graph('lux', tablename, 30)
+            elif 'temp&hum' in something:
+                filename = data_graph('temperature, humidity', tablename, 30)
+        return render_template("sensor.html", data=data_display, filename=filename)
+    else:
+        return render_template("sensor.html", data=data_display)
 
 
 if __name__ == "__main__":
