@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import psycopg2
+import psycopg2.sql
 import datetime
 import pytz
 
