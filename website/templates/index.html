@@ -25,10 +25,10 @@
             attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a> &copy; WireBark',
         }).addTo(map);
 
-        {% for data in data_a%}
-        var marker = L.marker([{{data.lat}}, {{data.lon}}]).addTo(map);
+        {% for sensor in data_a%}
+        var marker = L.marker([{{sensor.lat}}, {{sensor.lon}}]).addTo(map);
         marker.bindPopup(
-            "<b>/{{data.name}}&nbsp;<span id='m_status' style='color:{%if data.status == 'ONLINE'%}green{% else %}red{%endif%};'>{{data.status}}</span></b><hr>Last measurement: {{data.datetime}}<br><br><table border='1' id='m_border'><tbody><tr><td>TEMP</td><td>HUM</td><td>LIGHT</td></tr><tr><td>{{data.temp}}</td><td>{{data.hum}}</td><td>{{data.light}}</td></tr></tbody></table><br>"
+            "<b>/<a href='{{sensor.name}}'>{{sensor.name}}</a>&nbsp;<span id='m_status' style='color:{%if sensor.status == 'ONLINE'%}green{% else %}red{%endif%};'>{{sensor.status}}</span></b><hr>Last measurement: {{sensor.datetime}}<br><br><table border='1' id='m_border'><tbody><tr><td>TEMP</td><td>HUM</td><td>LIGHT</td></tr><tr><td>{{sensor.temp}}</td><td>{{sensor.hum}}</td><td>{{sensor.light}}</td></tr></tbody></table><br>"
             );
         {% endfor %}
         }
