@@ -101,7 +101,8 @@ def mapData():
 @app.route("/")
 def homePage():
     data_a = mapData()
-    return render_template("index.html", data_a=data_a)
+    sensors = ["sensor1", "sensor2", "sensor3", "sensor4", "sensor5", "sensor6", "sensor7", "sensor8", "sensor9", "sensor10", "sensor11", "sensor12", "sensor13", "sensor14", "sensor15", "sensor16", "sensor17", "sensor18", "sensor19"]
+    return render_template("index.html", data_a=data_a, sensors=sensors)
 
 
 @app.route("/sensor<sensorID>")

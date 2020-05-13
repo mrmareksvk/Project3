@@ -16,48 +16,58 @@
     <!-- OUR Internal CSS-->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
+    <script>
+    function mapFunction(){
+        // Focus on southern Aarhus
+        var map = L.map('map').setView([56.12, 10.16], 13);
 
+        L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=25GqmgtwruyjOSuODtXo', {
+            attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a> &copy; WireBark',
+        }).addTo(map);
+
+        {% for data in data_a%}
+        var marker = L.marker([{{data.lat}}, {{data.lon}}]).addTo(map);
+        marker.bindPopup(
+            "<b>/{{data.name}}&nbsp;<span id='m_status' style='color:{%if data.status == 'ONLINE'%}green{% else %}red{%endif%};'>{{data.status}}</span></b><hr>Last measurement: {{data.datetime}}<br><br><table border='1' id='m_border'><tbody><tr><td>TEMP</td><td>HUM</td><td>LIGHT</td></tr><tr><td>{{data.temp}}</td><td>{{data.hum}}</td><td>{{data.light}}</td></tr></tbody></table><br>"
+            );
+        {% endfor %}
+        }
+    </script>
 </head>
 
 <body>
-    <div class="top_left" background=>
-        <h1 style="font-family:Brush Script MT" style="font-size:100px">
-            WIREBARK
-        </h1>
-        <img src='../static/wirebark1.png' height="180" width="180">
-    </div>
-    <div class="container">
-
-        <div class="row justify-content-center">
-
-            <h2 class="display-2 d-flex">Choose the number of the Classroom (1-100):</h2>
-
-            <div class="button-box col-lg-8">
-                <a href="mylink.php" class="btn btn-primary" role="button">SENSOR#1</a>
-                <a href="mylink.php" class="btn btn-primary" role="button">SENSOR#2</a>
-                <a href="mylink.php" class="btn btn-primary" role="button">SENSOR#3</a>
-                <a href="mylink.php" class="btn btn-primary" role="button">SENSOR#4</a>
-                <a href="mylink.php" class="btn btn-primary" role="button">SENSOR#5</a>
-                <a href="mylink.php" class="btn btn-primary" role="button">SENSOR#6</a>
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-lg-12 p-3">
+                <h3 class="display-3">Click button or choose on the map</h2>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-lg-12 p-3">
+                {% for sensor in sensors%}
+                <a href="/sensor/{{sensor}}" class="btn btn-primary" style='margin-right: 5px; margin-left: 5px; margin-bottom: 10px; margin-top: 10px; padding:10px;' role="button">{{sensor}}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="map">
+                <script>
+                    mapFunction();
+                </script>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12 p-3">
+                <img src='../static/wirebark1.png' height="180" width="180">
+                <h1 id="wirebark">WIREBARK</h1>
+            </div>
+        </div>
+
     </div>
-    <div id="map">
-        <script>
-            var map = L.map('map').setView([56.12, 10.16], 13);
-
-            L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=25GqmgtwruyjOSuODtXo', {
-                attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a> &copy; WireBark',
-            }).addTo(map);
-
-            {% for data in data_a%}
-            var marker = L.marker([{{data.lat}}, {{data.lon}}]).addTo(map);
-            marker.bindPopup(
-                "<b>/{{data.name}}&nbsp;<span id='m_status' style='color:{%if data.status == 'ONLINE'%}green{% else %}red{%endif%};'>{{data.status}}</span></b><hr>Last measurement: {{data.datetime}}<br><br><table border='1' id='m_border'><tbody><tr><td>TEMP</td><td>HUM</td><td>LIGHT</td></tr><tr><td>{{data.temp}}</td><td>{{data.hum}}</td><td>{{data.light}}</td></tr></tbody></table><br>"
-                );
-            {% endfor %}
-
-        </script>
 
 </body>
+
 </html>

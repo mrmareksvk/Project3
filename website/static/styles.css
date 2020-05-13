@@ -22,6 +22,14 @@ body {
     z-index: 0;
 }
 
+#wirebark {
+    font-family: Brush Script MT;
+}
+
+#btn {
+    margin-right: 5px;
+}
+
 /* Map stuff plz dnt tch */
 #map {
     margin: auto;
@@ -35,6 +43,6 @@ body {
 }
 
 #m_border {
-    margin-left:auto;
-    margin-right:auto;
+    margin-left: auto;
+    margin-right: auto;
 }
