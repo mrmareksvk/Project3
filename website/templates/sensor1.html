@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="5" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Classrooms</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+</head>
+<style>
+    .top_left {
+        position: absolute;
+        top: 8px;
+        left: 16px;
+    }
+
+    body {
+        background-image: url('../static/cool-background (3).png');
+    }
+</style>
+
+<body>
+    <div class="top_left">
+        <h1 style="font-family:Brush Script MT" style="font-size:100px">
+            WIREBARK
+        </h1>
+        <img src='../static/wirebark1.png' height="180" width="180">
+
+    </div>
+    <div class="container">
+
+        <div class="row justify-content-center">
+            {% if number %}
+            <h2 class="display-2 d-flex">Data from Classroom #{{number}}</h2>
+            {% endif %}
+        </div>
+
+        <hr>
+        <div class="row justify-content-center">
+
+        </div>
+
+
+        <div class="row p-5">
+
+            <div class="col">
+                <p class="font-weight-bold">Latitude </p>
+                {% if lat %}
+                <p class="font-weight-bold text-primary">{{lat}}</p>
+                {% endif %}
+            </div>
+
+            <div class="col">
+                <p class="font-weight-bold">Longitude</p>
+                {% if lon %}
+                <p class="font-weight-bold text-primary">{{lon}}</p>
+                {% endif %}
+            </div>
+
+            <div class="col">
+                <p class="font-weight-bold">Date & Time</p>
+                {% if dt %}
+                <p class="font-weight-bold text-primary">{{dt}}</p>
+                {% endif %}
+            </div>
+
+            <!-- <div class="col">
+              <p class="font-weight-bold">Time</p>
+              {% if time %}
+              <p class="font-weight-bold text-primary">12:12:12</p>
+              {% endif %}
+          </div> -->
+
+            <div class="col">
+                <p class="font-weight-bold">Temperature </p>
+                {% if temp %}
+                <p class="font-weight-bold text-primary">{{temp}}</p>
+                {% endif %}
+            </div>
+
+            <div class="col">
+                <p class="font-weight-bold">Humidity</p>
+                {% if hum %}
+                <p class="font-weight-bold text-primary">{{hum}} %</p>
+                {% endif %}
+            </div>
+
+            <div class="col justify-content-center">
+                <p class="font-weight-bold">Light intensity</p>
+                {% if lux %}
+                <p class="font-weight-bold text-primary"> {{lux}} lux</p>
+                {% endif %}
+            </div>
+
+
+        </div>
+
+        <div class="container">
+            <img src='../static/temperature_sensor1.png' width="480" height="360" />
+
+            <img src='../static/humidity_sensor1.png' width="480" height="360" />
+        </div>
+
+</body>
+
+</html>

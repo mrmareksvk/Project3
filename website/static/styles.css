@@ -1,0 +1,40 @@
+/*WireBark CSS*/
+label {
+    display: block;
+    font: 1rem 'Fira Sans', sans-serif;
+    font-size: 80px;
+}
+
+input,
+label {
+    margin: .4rem 0;
+}
+
+body {
+    background-image: url('cool-background.png');
+}
+
+.background {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+/* Map stuff plz dnt tch */
+#map {
+    margin: auto;
+    margin-top: 50px;
+    width: 600px;
+    height: 400px;
+}
+
+#m_status {
+    float: right;
+}
+
+#m_border {
+    margin-left:auto;
+    margin-right:auto;
+}
