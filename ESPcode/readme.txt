@@ -143,3 +143,6 @@ OTHER:
 
      ESP: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      https://www.espressif.com/sites/default/files/documentation/2c-esp8266_non_os_sdk_api_reference_en.pdf
+
+     NEO-M8N: - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+     https://www.u-blox.com/sites/default/files/products/documents/PowerManagement_AppNote_%28UBX-13005162%29.pdf
