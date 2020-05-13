@@ -25,9 +25,6 @@ def dataMap():
 #  end of work in progress
 
 def mapData():
-
-    # tables = ["sensor1", "sensor2", "sensor3", "sensor4"]
-    # data derivated from different tables
     data_a = [
         {
             "name": "sensor1",
@@ -54,9 +51,14 @@ def mapData():
 
 
 @app.route("/")
-def home():
+def homePage():
     data_a = mapData()
     return render_template("index.html", data_a=data_a)
+
+
+@app.route("/sensor")
+def sensorPage():
+    return render_template("sensor.html")
 
 
 if __name__ == "__main__":
