@@ -42,7 +42,7 @@ def readDB():
                 "temp": str(values[1]),
                 "hum": str(values[2]),
                 "light": str(values[3]),
-                "datetime:": values[6].strftime("%d.%m.%Y %H:%M"),
+                "datetime": values[6].strftime("%d.%m.%Y %H:%M"),
                 "lat": str(values[4]),
                 "lon": str(values[5])
             }
@@ -109,7 +109,7 @@ def homePage():
 
 @app.route("/sensor<sensorID>")
 def sensorPage(sensorID=None):
-    data_a = mapData()
+    data_a = readDB()
     for data in data_a:
         if data['name'] == 'sensor%s' % (sensorID):
             data_display = data
