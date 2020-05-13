@@ -51,56 +51,10 @@ def readDB():
     cur.close()
     return latest_values
 
-# def data_graph():
-#     engine.execute('select temperature, humidity, dt from sensor1')
-#     dates = []
-#     temperatures = []
-#     humidities = []
-#
-#     for row in c.fetchall():
-#         dates.append(row[2])
-#         temperatures.append(row[0])
-#         humidities.append(row[1])
-#     plt.plot(dates, temperatures, humidities, '-')
-#     plt.show()
-#     plt.savefig('chart_sensor1.png')
-
-#   work in progress
-def dataMap():
-    for key in keys:
-        data[key] = values[len(data)]
-#  end of work in progress
-
-
-def mapData():
-    data_a = [
-        {
-            "name": "sensor1",
-            "status": "ONLINE",
-            "temp": "20.2",
-            "hum": "40%",
-            "light": "970",
-            "datetime": "11.5.2020 12:25",
-            "lat": "56.11988",
-            "lon": "10.15921",
-        },
-        {
-            "name": "sensor2",
-            "status": "OFFLINE",
-            "temp": "19",
-            "hum": "35%",
-            "light": "785",
-            "datetime": "11.5.2020 12:35",
-            "lat": "56.11919",
-            "lon": "10.15833",
-        },
-    ]
-    return data_a
-
 
 @app.route("/")
 def homePage():
-    data_a = mapData()
+    data_a = readDB()   # arrays for maps
     sensors = ["sensor1", "sensor2", "sensor3", "sensor4", "sensor5", "sensor6", "sensor7", "sensor8", "sensor9", "sensor10", "sensor11", "sensor12", "sensor13", "sensor14", "sensor15", "sensor16", "sensor17", "sensor18", "sensor19"]
     return render_template("index.html", data_a=data_a, sensors=sensors)
 
@@ -117,3 +71,28 @@ def sensorPage(sensorID=None):
 if __name__ == "__main__":
     app.debug = True
     app.run(port=5000)
+
+
+  ''' SIKRIT STASH
+  {
+      "name": "sensor1",
+      "status": "ONLINE",
+      "temp": "20.2",
+      "hum": "40%",
+      "light": "970",
+      "datetime": "11.5.2020 12:25",
+      "lat": "56.11988",
+      "lon": "10.15921",
+  },
+  {
+      "name": "sensor2",
+      "status": "OFFLINE",
+      "temp": "19",
+      "hum": "35%",
+      "light": "785",
+      "datetime": "11.5.2020 12:35",
+      "lat": "56.11919",
+      "lon": "10.15833",
+  },
+]
+'''
