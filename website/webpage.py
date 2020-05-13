@@ -1,8 +1,54 @@
 from flask import Flask, render_template, request
 import psycopg2
+import datetime
+import pytz
 
 app = Flask(__name__)
 
+
+def readDB():
+    con = psycopg2.connect(
+        host="127.0.0.1",
+        port="5432",
+        database="test",
+        user="test",
+        password="test"
+    )
+    cur = con.cursor()
+    cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
+
+    tables = cur.fetchall()
+
+    latest_values = []
+
+    for table in tables:
+        cur.execute(
+            psycopg2.sql.SQL("SELECT * FROM {} ORDER BY dt DESC LIMIT 1").format(psycopg2.sql.Identifier(table[0]))
+        )
+        values = cur.fetchone()
+
+        status = ""
+
+        if datetime.datetime.now(datetime.timezone.utc) < pytz.utc.localize(values[6]) + datetime.timedelta(minutes=20):
+            status = "ONLINE"
+        else:
+            status = "OFFLINE"
+
+        latest_values.append(
+            {
+                "name": table[0],
+                "status": status,
+                "temp": str(values[1]),
+                "hum": str(values[2]),
+                "light": str(values[3]),
+                "datetime:": values[6].strftime("%d.%m.%Y %H:%M"),
+                "lat": str(values[4]),
+                "lon": str(values[5])
+            }
+        )
+    con.close()
+    cur.close()
+    return latest_values
 
 # def data_graph():
 #     engine.execute('select temperature, humidity, dt from sensor1')
