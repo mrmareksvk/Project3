@@ -45,8 +45,8 @@
 
         <div class="row">
             <div class="col-lg-12 p-3">
-                {% for sensor in sensors%}
-                <a href="/sensor/{{sensor}}" class="btn btn-primary" style='margin-right: 5px; margin-left: 5px; margin-bottom: 10px; margin-top: 10px; padding:10px;' role="button">{{sensor}}</a>
+                {% for sensor in data_a %}
+                <a href="/sensor/{{sensor.name}}" class="btn btn-{%if sensor.status == 'ONLINE'%}success{% else %}danger{%endif%}" style='margin-right: 5px; margin-left: 5px; margin-bottom: 10px; margin-top: 10px; padding:10px;' role="button">{{sensor.name}}</a>
                 {% endfor %}
             </div>
         </div>
