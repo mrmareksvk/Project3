@@ -1,25 +1,26 @@
-import matplotlib
-matplotlib.use('Agg')
-from matplotlib.figure import Figure
 from flask import Flask, render_template
 import psycopg2
 import psycopg2.sql
 import datetime
 import pytz
+from matplotlib.figure import Figure
+
 
 app = Flask(__name__)
 
 
-def readDB():
-    con = psycopg2.connect(
-        host="127.0.0.1",
-        port="5432",
-        database="test",
-        user="test",
-        password="test"
+def DBconnector():  # <------------------- CHANGE ZIS
+    return psycopg2.connect(
+        host="127.0.0.1", port="5432", database="test", user="postgres", password="heslo"
     )
+
+
+def readDB():
+    con = DBconnector()
     cur = con.cursor()
-    cur.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
+    cur.execute(
+        "SELECT table_name FROM information_schema.tables WHERE table_schema='public'"
+    )
 
     tables = cur.fetchall()
 
@@ -27,13 +28,17 @@ def readDB():
 
     for table in tables:
         cur.execute(
-            psycopg2.sql.SQL("SELECT * FROM {} ORDER BY dt DESC LIMIT 1").format(psycopg2.sql.Identifier(table[0]))
+            psycopg2.sql.SQL("SELECT * FROM {} ORDER BY dt DESC LIMIT 1").format(
+                psycopg2.sql.Identifier(table[0])
+            )
         )
         values = cur.fetchone()
 
         status = ""
 
-        if datetime.datetime.now(datetime.timezone.utc) < pytz.utc.localize(values[6]) + datetime.timedelta(minutes=20):
+        if datetime.datetime.now(datetime.timezone.utc) < pytz.utc.localize(
+            values[6]
+        ) + datetime.timedelta(minutes=20):
             status = "ONLINE"
         else:
             status = "OFFLINE"
@@ -45,9 +50,9 @@ def readDB():
                 "temp": str(values[1]),
                 "hum": str(values[2]),
                 "light": str(values[3]),
-                "datetime": values[6].strftime("%d.%m.%Y %H:%M"),
+                "datetime:": values[6].strftime("%d.%m.%Y %H:%M"),
                 "lat": str(values[4]),
-                "lon": str(values[5])
+                "lon": str(values[5]),
             }
         )
     con.close()
@@ -56,59 +61,56 @@ def readDB():
 
 
 def data_graph(data, tablename, limit):
-    con = psycopg2.connect(
-        host="127.0.0.1",
-        port="5432",
-        database="test",
-        user="test",
-        password="test"
-    )
+    con = DBconnector()
     cur = con.cursor()
-    cur.execute(psycopg2.sql.SQL("SELECT {}, dt FROM {} ORDER BY dt DESC LIMIT %s").format(
-        psycopg2.sql.Identifier(data), psycopg2.sql.Identifier(tablename)), (limit,))
+    cur.execute(
+        psycopg2.sql.SQL("SELECT {}, dt FROM {} ORDER BY dt DESC LIMIT %s").format(
+            psycopg2.sql.Identifier(data), psycopg2.sql.Identifier(tablename)
+        ),
+        (limit,),
+    )
     dates = []
     temperatures = []
     humidities = []
     lights = []
-    path = './static/'
+    path = "./static/"
 
     for row in cur.fetchall():
-        if data == 'temperature, humidity':
+        if data == "temperature, humidity":
             temperatures.append(row[0])
             humidities.append(row[1])
             dates.append(row[2])
         else:
             dates.append(row[1])
-            if data == 'temperature':
+            if data == "temperature":
                 temperatures.append(row[0])
-            elif data == 'humidity':
+            elif data == "humidity":
                 humidities.append(row[0])
             else:
                 lights.append(row[0])
     fig = Figure()
     ax = fig.subplots()
-    if data == 'temperature':
+    if data == "temperature":
         ax.plot(dates, temperatures)
-        filename = path+'temperature{}{}.png'.format(limit, tablename)
+        filename = path + "temperature{}{}.png".format(limit, tablename)
         print(filename)
         fig.savefig(filename)
-    elif data == 'humidity':
-        ax.plot(dates, humidities, '-')
-        filename = path+'humidity{}{}.png'.format(limit, tablename)
+    elif data == "humidity":
+        ax.plot(dates, humidities, "-")
+        filename = path + "humidity{}{}.png".format(limit, tablename)
         fig.savefig(filename)
-    elif data == 'lux':
-        ax.plot(dates, lights, '-')
-        filename = path+'light{}{}.png'.format(limit, tablename)
+    elif data == "lux":
+        ax.plot(dates, lights, "-")
+        filename = path + "light{}{}.png".format(limit, tablename)
         fig.savefig(filename)
-    elif data == 'temperature, humidity':
-        filename = path+'temperature,humidity{}{}.png'.format(limit, tablename)
-        ax.plot(dates, temperatures, humidities, '-')
+    elif data == "temperature, humidity":
+        filename = path + "temperature,humidity{}{}.png".format(limit, tablename)
+        ax.plot(dates, temperatures, humidities, "-")
         fig.savefig(filename)
     fig.clear()
     cur.close()
     con.close()
     return filename
-
 
 
 @app.route("/")
@@ -164,28 +166,35 @@ if __name__ == "__main__":
     app.run(port=5000)
 
 
-# Sikrit stahs DNT TCH
-'''
-data_a = [
-    {
-        "name": "sensor1",
-        "status": "ONLINE",
-        "temp": "20.2",
-        "hum": "40%",
-        "light": "970",
-        "datetime": "11.5.2020 12:25",
-        "lat": "56.11988",
-        "lon": "10.15921",
-    },
-    {
-        "name": "sensor2",
-        "status": "OFFLINE",
-        "temp": "19",
-        "hum": "35%",
-        "light": "785",
-        "datetime": "11.5.2020 12:35",
-        "lat": "56.11919",
-        "lon": "10.15833",
-    },
-]
-'''
+"""
+def dataMap():
+    for key in keys:
+        data[key] = values[len(data)]
+#  end of work in progress
+
+# 2 data for poor people without database
+def mapData():
+    data_a = [
+        {
+            "name": "sensor1",
+            "status": "ONLINE",
+            "temp": "20.2",
+            "hum": "40%",
+            "light": "970",
+            "datetime": "11.5.2020 12:25",
+            "lat": "56.11988",
+            "lon": "10.15921",
+        },
+        {
+            "name": "sensor2",
+            "status": "OFFLINE",
+            "temp": "19",
+            "hum": "35%",
+            "light": "785",
+            "datetime": "11.5.2020 12:35",
+            "lat": "56.11919",
+            "lon": "10.15833",
+        },
+    ]
+    return data_a
+"""
