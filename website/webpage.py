@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 def DBconnector():  # <------------------- CHANGE ZIS
     return psycopg2.connect(
-        host="127.0.0.1", port="5432", database="test", user="postgres", password="heslo"
+        host="127.0.0.1", port="5432", database="test", user="test", password="test"
     )
 
 
@@ -164,37 +164,3 @@ def sensorPage(sensorID=None, something=None):
 if __name__ == "__main__":
     app.debug = True
     app.run(port=5000)
-
-
-"""
-def dataMap():
-    for key in keys:
-        data[key] = values[len(data)]
-#  end of work in progress
-
-# 2 data for poor people without database
-def mapData():
-    data_a = [
-        {
-            "name": "sensor1",
-            "status": "ONLINE",
-            "temp": "20.2",
-            "hum": "40%",
-            "light": "970",
-            "datetime": "11.5.2020 12:25",
-            "lat": "56.11988",
-            "lon": "10.15921",
-        },
-        {
-            "name": "sensor2",
-            "status": "OFFLINE",
-            "temp": "19",
-            "hum": "35%",
-            "light": "785",
-            "datetime": "11.5.2020 12:35",
-            "lat": "56.11919",
-            "lon": "10.15833",
-        },
-    ]
-    return data_a
-"""

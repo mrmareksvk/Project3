@@ -19,8 +19,9 @@
     <script>
     function mapFunction(){
         // Focus on southern Aarhus
+        if (map != undefined) { map.remove(); console.log("map removed"); }
         var map = L.map('map').setView([56.12, 10.16], 13);
-
+        // console.log("map init");
         L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=25GqmgtwruyjOSuODtXo', {
             attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a> &copy; WireBark',
         }).addTo(map);
@@ -34,16 +35,18 @@
         }
 
         function reload(){
-            console.log("seamless reload");
             var xhttp = new XMLHttpRequest();
-            if (this.readyState == 4 && this.status == 200) {
-                document.body.inninnerHTML = this.responseText;
-            }
-            xhttp.open("GET","/", true);
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.body.innerHTML = this.responseText;
+                    console.log("AJAX");
+                    }
+            };
+            xhttp.open("GET","", true);
             xhttp.send();
         };
 
-        setInterval(function(){ reload();}, 60000);
+        setInterval(function(){ reload();}, 10000);
 
     </script>
 </head>
@@ -66,9 +69,7 @@
 
         <div class="row">
             <div id="map">
-                <script>
-                    mapFunction();
-                </script>
+                <img src="static/magic.png" onload="mapFunction()"/>
             </div>
         </div>
 
