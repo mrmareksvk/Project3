@@ -3,181 +3,186 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="5" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Classrooms</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Data from {{data.name}}</title>
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
+    <!-- OUR Internal CSS-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
 </head>
-<style>
-    .top_left {
-        position: absolute;
-        top: 8px;
-        left: 16px;
-    }
 
-    body {
-        background-image: url('../static/cool-background (3).png');
-    }
-</style>
 
-<body>
+<body class='sensor'>
     <div class="top_left">
-        <h1 style="font-family:Brush Script MT" style="font-size:100px">
+        <h1 id="wirebark">
             WIREBARK
         </h1>
-        <img src='../static/wirebark1.png' height="180" width="180">
-
+        <img src='../static/wirebark.png' height="180" width="180">
     </div>
-    <div class="container">
 
-        <div class="row justify-content-center">
-            <h2 class="display-2 d-flex">Data from #{{data.name}}</h2>
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-lg-12 p-3">
+                <h3 class="display-3">Data from {{data.name}}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 p-3">
+                <hr>
+            </div>
         </div>
 
-        <hr>
-        <div class="row justify-content-center">
-
-        </div>
-
-
-        <div class="row p-5">
-
+        <div id="sensor-bck" class="row">
             <div class="col">
                 <p class="font-weight-bold">Latitude </p>
                 <p class="font-weight-bold text-primary">{{data.lat}}</p>
             </div>
-
             <div class="col">
                 <p class="font-weight-bold">Longitude</p>
                 <p class="font-weight-bold text-primary">{{data.lon}}</p>
             </div>
-
             <div class="col">
                 <p class="font-weight-bold">Date & Time</p>
                 <p class="font-weight-bold text-primary">{{data.datetime}}</p>
             </div>
-
-
             <div class="col">
                 <p class="font-weight-bold">Temperature </p>
-                <p class="font-weight-bold text-primary">{{data.temp}}</p>
+                <p class="font-weight-bold text-primary">{{data.temp}} &#8451;</p>
             </div>
-
             <div class="col">
                 <p class="font-weight-bold">Humidity</p>
                 <p class="font-weight-bold text-primary">{{data.hum}} %</p>
             </div>
-
-            <div class="col justify-content-center">
+            <div class="col">
                 <p class="font-weight-bold">Light intensity</p>
                 <p class="font-weight-bold text-primary"> {{data.light}} lux</p>
             </div>
-
-
         </div>
-        <div>
 
-        <select  onchange="choice(this.value)">
-            <option value='light10'>Light intensity 10 </option>
-            <option value='light20'>Light intensity 20 </option>
-            <option value='light30'>Light integrity 30 </option>
-            <option value='temp&hum10'>Temperature & Humidity 10 </option>
-            <option value='temp&hum20'>Temperature & Humidity 20 </option>
-            <option value='temp&hum30'>Temperature & Humidity 30 </option>
-        </select>
-    </div>
-
-            <hr>
-            <div class="row justify-content-center">
-
+        <div class="row">
+            <div class="col-lg-12 p-3">
+                <hr>
             </div>
-        <div width= "400" height="400">
-            <canvas id="myChart"></canvas>
+        </div>
+
+        <div class="row justify-content-md-center">
+            <div class="col-lg-3 col-centered">
+                <select class = "form-control form-control-sm" onchange="choice(this.value);">
+                    <option value="a">Choose the graph</option>
+                    <option value='light10'>Light intensity 10 </option>
+                    <option value='light20'>Light intensity 20 </option>
+                    <option value='light30'>Light integrity 30 </option>
+                    <option value='temp&hum10'>Temperature & Humidity 10 </option>
+                    <option value='temp&hum20'>Temperature & Humidity 20 </option>
+                    <option value='temp&hum30'>Temperature & Humidity 30 </option>
+                </select>
+            </div>
+        </div>
+
+        <div id="sensor-bck" class="row justify-content-center">
+            <div class="col">
+                <div>
+                    <br>
+                    <canvas id="myChart"></canvas>
+                    <br>
+                </div>
+            </div>
         </div>
 
     </div>
-<script>
-    function choice(graph_choice){
-        if (graph_choice =='light10'){
-                window.location.href = "http://127.0.0.1:5000/sensor1/light10";
-            }
-        else if (graph_choice =='light20'){
-                window.location.href = "http://127.0.0.1:5000/sensor1/light20";
-            }
-        else if (graph_choice =='light30'){
-                window.location.href = "http://127.0.0.1:5000/sensor1/light30";
-            }
-        else if (graph_choice =='temp&hum10'){
-                window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum10";
-            }
-        else if (graph_choice =='temp&hum20'){
-                window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum20";
-            }
-        else if (graph_choice =='temp&hum30'){
-                window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum30";
-            }
+
+
+    <script>
+        function hahayis(text){
+            console.log(text);
         }
-        $(document).ready(function(){
-            var time_Array = {{dates|safe}};
-            var humidity_Array = {{humidities}};
-            var temperature_Array = {{temperatures}};
-            var light_Array = {{lights}};
+
+        function choice(graph_choice){
+
+            if (graph_choice =='light10'){
+                    window.location.href = "http://127.0.0.1:5000/sensor1/light10";
+                }
+            else if (graph_choice =='light20'){
+                    window.location.href = "http://127.0.0.1:5000/sensor1/light20";
+                }
+            else if (graph_choice =='light30'){
+                    window.location.href = "http://127.0.0.1:5000/sensor1/light30";
+                }
+            else if (graph_choice =='temp&hum10'){
+                    window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum10";
+                }
+            else if (graph_choice =='temp&hum20'){
+                    window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum20";
+                }
+            else if (graph_choice =='temp&hum30'){
+                    window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum30";
+                }
+            };
+            </script>
+            <script>
+            $(document).ready(function(){
+                console.log("{{dates}}");
+                var time_Array = {{dates|safe}};
+                var humidity_Array = {{humidities}};
+                var temperature_Array = {{temperatures}};
+                var light_Array = {{lights}};
 
 
-            var ctx = document.getElementById ('myChart');
-            var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-            labels: time_Array,
-            datasets: [{
-            label: 'Humidity',
-            data: humidity_Array,
-            borderColor: 'rgba(255,0,0,0.6)'
+                var ctx = document.getElementById ('myChart');
+                ctx.style.backgroundColor = 'rgb(255, 255, 255, 0.8)';
+                var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                labels: time_Array,
+                datasets: [
+                {
+                label: 'Temperature',
+                data: temperature_Array,
+                borderColor: 'rgb(255,204,0)',
+                backgroundColor: 'rgba(255,204,0,0.3)'
+            },{
+                label: 'Humidity',
+                data: humidity_Array,
+                borderColor: 'rgb(255,0,0)',
+                backgroundColor: 'rgba(255,0,0,0.3)'
+            },{
+                label: 'Light intensity',
+                data: light_Array,
+                borderColor:'rgb(0,153,255)',
+                backgroundColor: 'rgba(0,153,255,0.3)'
+            }]
+        },
 
-        },{
-            label: 'Temperature',
-            data: temperature_Array,
-            borderColor: 'rgb(255,204,0)'
-        },{
-            label: 'Light intensity',
-            data: light_Array,
-            borderColor:'rgb(0,153,255)'
-        }]
-    },
-
-             options: {
-             scales: {
-                 yAxes: [{
-                     ticks: {
-                         beginAtZero:true
-                     }
-                 }],
-                 xAxes: [{
-                     type: 'time',
-                     time: {
-                         parser: 'DD-MM-YYYY HH:mm',
-                         unit: 'minute',
-                         displayFormats: {
-                             'minute': 'DD-MM-YYYY HH:mm',
-                             'hour': 'DD-MM-YYYY HH:mm'
+                 options: {
+                 scales: {
+                     yAxes: [{
+                         ticks: {
+                             beginAtZero:true
                          }
-                     }
-                 }]
-             }
-            }
+                     }],
+                     xAxes: [{
+                         type: 'time',
+                         time: {
+                             parser: 'DD-MM-YYYY HH:mm',
+                             unit: 'minute',
+                             displayFormats: {
+                                 'minute': 'DD-MM-YYYY HH:mm',
+                                 'hour': 'DD-MM-YYYY HH:mm'
+                             }
+                         }
+                     }]
+                 }
+                }
+                });
             });
-            });
-</script>
+            </script>
 
 
 </body>
-
-</html>
 </html>
