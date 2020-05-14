@@ -11,7 +11,11 @@ app = Flask(__name__)
 
 def DBconnector():  # <------------------- CHANGE ZIS
     return psycopg2.connect(
-        host="127.0.0.1", port="5432", database="test", user="test", password="test"
+        host="127.0.0.1",
+        port="5432",
+        database="test",
+        user="postgres",
+        password="test",
     )
 
 
@@ -76,18 +80,19 @@ def data_graph(data, tablename, limit):
     lights = []
 
     for row in cur.fetchall():
-        if data == "temperature, humidity":
+        if data == 'temperature, humidity':
             temperatures.append(row[0])
             humidities.append(row[1])
             dates.append(row[2])
         else:
             dates.append(row[1])
-            if data == "temperature":
+            if data == 'temperature':
                 temperatures.append(row[0])
-            elif data == "humidity":
+            elif data == 'humidity':
                 humidities.append(row[0])
             else:
                 lights.append(row[0])
+    return dates, temperatures, humidities, lights
 
 
 @app.route("/")
@@ -143,7 +148,6 @@ def sensorPage(sensorID=None, graph=None):
         return render_template("sensor.html", data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights, text=text)
     else:
         return render_template("sensor.html", data=data_display)
-
 
 
 if __name__ == "__main__":

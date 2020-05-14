@@ -1,31 +1,27 @@
 /*WireBark CSS*/
-label {
-    display: block;
-    font: 1rem 'Fira Sans', sans-serif;
-    font-size: 80px;
-}
-
-input,
-label {
-    margin: .4rem 0;
-}
-
-body {
+body.main {
     background-image: url('cool-background.png');
 }
 
-.background {
+body.sensor {
+    background-image: url('cool-background-2.png');
+}
+
+.top_left {
     position: absolute;
-    display: block;
-    top: 0;
-    left: 0;
-    z-index: 0;
+    top: 8px;
+    left: 16px;
+}
+
+#sensor-bck {
+    background-color: rgb(230,230,253,0.8);
 }
 
 #wirebark {
     font-family: Brush Script MT;
 }
 
+/* Main page btns dnt tch */
 #btn {
     margin-right: 5px;
 }
