@@ -98,11 +98,14 @@
         </select>
     </div>
 
-        <div class="container">
+            <hr>
+            <div class="row justify-content-center">
 
-            <img src=".{{filename}}" width="480" height="360"/>
-
+            </div>
+        <div width= "400" height="400">
+            <canvas id="myChart"></canvas>
         </div>
+
     </div>
 <script>
     function choice(graph_choice){
@@ -143,6 +146,55 @@
                 window.location.href = "http://127.0.0.1:5000/sensor1/temp&hum30";
             }
         }
+        $(document).ready(function(){
+            var time_Array = {{dates|safe}};
+            var humidity_Array = {{humidities}};
+            var temperature_Array = {{temperatures}};
+            var light_Array = {{lights}};
+
+
+            var ctx = document.getElementById ('myChart');
+            var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+            labels: time_Array,
+            datasets: [{
+            label: 'Humidity',
+            data: humidity_Array,
+            borderColor: 'rgba(255,0,0,0.6)'
+        },{
+            label: 'Temperature',
+            data: temperature_Array,
+            borderColor: 'rgb(255,204,0)'
+        },{
+            label: 'Light intensity',
+            data: light_Array,
+            borderColor:'rgb(0,153,255)'
+        }]
+    },
+
+             options: {
+             scales: {
+                 yAxes: [{
+                     ticks: {
+                         beginAtZero:true
+                     }
+                 }],
+                 xAxes: [{
+                     type: 'time',
+                     time: {
+                         parser: 'DD-MM-YYYY HH:mm',
+                         unit: 'minute',
+                         displayFormats: {
+                             'minute': 'DD-MM-YYYY HH:mm',
+                             'hour': 'DD-MM-YYYY HH:mm'
+                         }
+                     }
+                 }]
+             }
+            }
+            });
+            });
 </script>
 
 

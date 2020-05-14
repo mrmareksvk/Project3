@@ -3,7 +3,7 @@ import psycopg2
 import psycopg2.sql
 import datetime
 import pytz
-from matplotlib.figure import Figure
+import json
 
 
 app = Flask(__name__)
@@ -63,17 +63,17 @@ def readDB():
 def data_graph(data, tablename, limit):
     con = DBconnector()
     cur = con.cursor()
-    cur.execute(
-        psycopg2.sql.SQL("SELECT {}, dt FROM {} ORDER BY dt DESC LIMIT %s").format(
-            psycopg2.sql.Identifier(data), psycopg2.sql.Identifier(tablename)
-        ),
-        (limit,),
-    )
+    if data == 'temperature, humidity':
+        split_data = data.split(", ")
+        cur.execute(psycopg2.sql.SQL("SELECT {}, {}, dt FROM {} ORDER BY dt DESC LIMIT %s").format(
+            psycopg2.sql.Identifier(split_data[0]), psycopg2.sql.Identifier(split_data[1]), psycopg2.sql.Identifier(tablename)), (limit,))
+    else:
+        cur.execute(psycopg2.sql.SQL("SELECT {}, dt FROM {} ORDER BY dt DESC LIMIT %s").format(
+            psycopg2.sql.Identifier(data), psycopg2.sql.Identifier(tablename)), (limit,))
     dates = []
     temperatures = []
     humidities = []
     lights = []
-    path = "./static/"
 
     for row in cur.fetchall():
         if data == "temperature, humidity":
@@ -88,29 +88,6 @@ def data_graph(data, tablename, limit):
                 humidities.append(row[0])
             else:
                 lights.append(row[0])
-    fig = Figure()
-    ax = fig.subplots()
-    if data == "temperature":
-        ax.plot(dates, temperatures)
-        filename = path + "temperature{}{}.png".format(limit, tablename)
-        print(filename)
-        fig.savefig(filename)
-    elif data == "humidity":
-        ax.plot(dates, humidities, "-")
-        filename = path + "humidity{}{}.png".format(limit, tablename)
-        fig.savefig(filename)
-    elif data == "lux":
-        ax.plot(dates, lights, "-")
-        filename = path + "light{}{}.png".format(limit, tablename)
-        fig.savefig(filename)
-    elif data == "temperature, humidity":
-        filename = path + "temperature,humidity{}{}.png".format(limit, tablename)
-        ax.plot(dates, temperatures, humidities, "-")
-        fig.savefig(filename)
-    fig.clear()
-    cur.close()
-    con.close()
-    return filename
 
 
 @app.route("/")
@@ -120,45 +97,53 @@ def homePage():
 
 
 @app.route("/sensor<sensorID>")
-@app.route("/sensor<sensorID>/<something>")
-def sensorPage(sensorID=None, something=None):
+@app.route("/sensor<sensorID>/<graph>")
+def sensorPage(sensorID=None, graph=None):
     tablename = 'sensor%s' % (sensorID)
     data_a = readDB()
     for data in data_a:
         if data['name'] == tablename:
             data_display = data
 
-    if something is not None:
-        if '10' in something:
-            if 'temp' in something:
-                filename = data_graph('temperature', tablename, 10)
-            elif 'hum' in something:
-                filename = data_graph('humidity', tablename, 10)
-            elif 'light' in something:
-                filename = data_graph('lux', tablename, 10)
-            elif 'temp&hum' in something:
-                filename = data_graph('temperature, humidity', tablename, 10)
-        elif '20' in something:
-            if 'temp' in something:
-                filename = data_graph('temperature', tablename, 20)
-            elif 'hum' in something:
-                filename = data_graph('humidity', tablename, 20)
-            elif 'light' in something:
-                filename = data_graph('lux', tablename, 20)
-            elif 'temp&hum' in something:
-                filename = data_graph('temperature, humidity', tablename, 20)
-        elif '30' in something:
-            if 'temp' in something:
-                filename = data_graph('temperature', tablename, 30)
-            elif 'hum' in something:
-                filename = data_graph('humidity', tablename, 30)
-            elif 'light' in something:
-                filename = data_graph('lux', tablename, 30)
-            elif 'temp&hum' in something:
-                filename = data_graph('temperature, humidity', tablename, 30)
-        return render_template("sensor.html", data=data_display, filename=filename)
+    datestamps = []
+    if graph is not None:
+        if '10' in graph:
+            if 'light' in graph:
+                dates, temperatures, humidities, lights = data_graph('lux', tablename, 10)
+                for date in dates:
+                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
+                text = 'Light intensity (last 10 records)'
+            elif 'temp&hum' in graph:
+                dates, temperatures, humidities, lights = data_graph('temperature, humidity', tablename, 10)
+                for date in dates:
+                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
+                text = 'Temperature&Humidity (last 10 records)'
+        elif '20' in graph:
+            if 'light' in graph:
+                dates, temperatures, humidities, lights = data_graph('lux', tablename, 20)
+                for date in dates:
+                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
+                text = 'Light intensity (last 10 records)'
+            elif 'temp&hum' in graph:
+                dates, temperatures, humidities, lights = data_graph('temperature, humidity', tablename, 20)
+                for date in dates:
+                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
+                text = 'Temperature&Humidity (last 20 records)'
+        elif '30' in graph:
+            if 'light' in graph:
+                dates, temperatures, humidities, lights = data_graph('lux', tablename, 30)
+                for date in dates:
+                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
+                text = 'Light intensity (last 30 records)'
+            elif 'temp&hum' in graph:
+                dates, temperatures, humidities, lights = data_graph('temperature, humidity', tablename, 30)
+                for date in dates:
+                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
+                text = 'Temperature&Humidity (last 30 records)'
+        return render_template("sensor.html", data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights, text=text)
     else:
         return render_template("sensor.html", data=data_display)
+
 
 
 if __name__ == "__main__":
