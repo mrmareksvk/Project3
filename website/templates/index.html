@@ -13,6 +13,8 @@
     <!-- MAP dependencies -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+    <!-- OUR Internal JS-->
+    <script src="{{ url_for('static', filename='reload.js') }}"></script>
     <!-- OUR Internal CSS-->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 
@@ -32,23 +34,12 @@
             "<b>/<a href='{{sensor.name}}'>{{sensor.name}}</a>&nbsp;<span id='m_status' style='color:{%if sensor.status == 'ONLINE'%}green{% else %}red{%endif%};'>{{sensor.status}}</span></b><hr>Last measurement: {{sensor.datetime}}<br><br><table border='1' id='m_border'><tbody><tr><td>TEMP</td><td>HUM</td><td>LIGHT</td></tr><tr><td>{{sensor.temp}}</td><td>{{sensor.hum}}</td><td>{{sensor.light}}</td></tr></tbody></table><br>"
             );
         {% endfor %}
-        }
-
-        function reload(){
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    document.body.innerHTML = this.responseText;
-                    console.log("AJAX_IN");
-                    }
-            };
-            xhttp.open("GET","", true);
-            xhttp.send();
         };
 
-        setInterval(function(){ reload();}, 60000);
-
+        // AJAX RELOAD 60S
+        setInterval(function(){reload("");}, 60000);
     </script>
+
 </head>
 
 <body class='main'>
@@ -61,23 +52,25 @@
 
         <div class="row">
             <div class="col-lg-12 p-3">
+                <hr>
                 {% for sensor in data_a %}
                 <a href="{{sensor.name}}" class="btn btn-{%if sensor.status == 'ONLINE'%}success{% else %}danger{%endif%}" style='margin-right: 5px; margin-left: 5px; margin-bottom: 10px; margin-top: 10px; padding:10px;' role="button">{{sensor.name}}</a>
                 {% endfor %}
+                <hr>
             </div>
         </div>
 
         <div class="row justify-content-md-center">
-            <div class="col-lg-8 p-3">
+            <div class="col-lg-8 p-1">
                 <div id="map">
                     <img src="../static/magic.png" onload="mapFunction()"/>
                 </div>
+                <hr>
             </div>
         </div>
 
-        <div class="row">
-            <div id="wirebark" class="col-lg-12 p-3">
-                <br>
+        <div class="row justify-content-md-center">
+            <div id="wirebark" class="col-lg-4 p-3">
                 <img src='../static/wirebark.png' height="180" width="180">
                 <h1>WIREBARK</h1>
             </div>

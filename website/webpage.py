@@ -81,6 +81,9 @@ def data_graph(tablename, limit):
         lights.append(row[2])
         dates.append(row[3])
 
+    con.close()
+    cur.close()
+
     return dates, temperatures, humidities, lights
 
 
@@ -139,7 +142,7 @@ def sensorPage(sensorID=None, graph=None):
             dates, temperatures, humidities, lights = data_graph(tablename, 30)
             for date in dates:
                 datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-        return render_template("sensor.html", hi=hi, data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights, archive=json.dumps(archive_list), download=filename)
+        return render_template("sensor.html", hi=hi, data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights, archive=json.dumps(archive_list), download=filename, option=graph)
     else:
         return render_template("sensor.html", hi=hi, data=data_display, archive=json.dumps(archive_list), download=filename)
 

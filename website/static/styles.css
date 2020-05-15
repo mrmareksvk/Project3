@@ -13,13 +13,17 @@ body.sensor {
     left: 16px;
 }
 
+#magic {
+    display: none;
+}
+
 #sensor-bck {
     background-color: rgb(230,230,253,0.8);
 }
 
 #wirebark{
     font-family: Brush Script MT;
-    border-radius: 50%;
+    border-radius: 80%;
     -webkit-transition: -webkit-transform .8s ease-in-out;
     transition:         transform .8s ease-in-out;
 }

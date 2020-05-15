@@ -12,13 +12,101 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
+    <!-- OUR Internal JS-->
+    <script src="{{ url_for('static', filename='reload_id.js') }}"></script>
     <!-- OUR Internal CSS-->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <script>
+        setInterval(function(){reload_id(location.pathname,"sensor_reload");}, 10000);
+
+        function optioner(id){
+            var choice_option = id;
+            // console.log(choice_option);
+            // console.log("OP:{{dates}}")
+            if(choice_option){
+                document.getElementById(choice_option).selected = "true";
+            }
+        }
+
+        function choice(graph_choice){
+            if (graph_choice =='10'){
+                    location.href=location.origin+'/{{data.name}}/10';
+                }
+            else if (graph_choice =='20'){
+                    location.href=location.origin+'/{{data.name}}/20';
+                }
+            else if (graph_choice =='30'){
+                    location.href=location.origin+'/{{data.name}}/30';
+                }
+            };
+
+            function grapher(time,hum,temp,lux){
+            {%if dates%}
+            //$(document).ready(function(){
+                console.log("in jQuerry");
+                var time_Array = time;
+                var humidity_Array = hum;
+                var temperature_Array = temp;
+                var light_Array = lux;
+                // console.log("JQ{{dates}}");
+                // console.log("JQ{{data.datetime}}");
+                if(myChart){console.log(";_;");UpdateChart(myChart);}
+                var ctx = document.getElementById ('myChart');
+                ctx.style.backgroundColor = 'rgb(255, 255, 255, 0.2)';
+                var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                labels: time_Array,
+                datasets: [
+                {
+                label: 'Temperature',
+                data: temperature_Array,
+                borderColor: 'rgb(255,0,0)',
+                backgroundColor: 'rgba(255,0,0,0.3)',
+            },{
+                label: 'Humidity',
+                data: humidity_Array,
+                borderColor:'rgb(0,153,255)',
+                backgroundColor: 'rgba(0,153,255,0.3)',
+            },{
+                label: 'Light intensity',
+                data: light_Array,
+                borderColor: 'rgb(255,204,0)',
+                backgroundColor: 'rgba(255,204,0,0.3)',
+                hidden: true,
+            }]
+        },
+                 options: {
+                 scales: {
+                     yAxes: [{
+                         ticks: {
+                             beginAtZero:true
+                         }
+                     }],
+                     xAxes: [{
+                         type: 'time',
+                         time: {
+                             parser: 'DD-MM-YYYY HH:mm',
+                             unit: 'minute',
+                             displayFormats: {
+                                 'minute': 'DD-MM-YYYY HH:mm',
+                                 'hour': 'DD-MM-YYYY HH:mm'
+                             }
+                         }
+                     }]
+                 }
+                }
+                });
+            //});
+            {% endif %}
+            }
+    </script>
 
 </head>
 
 
-<body class='sensor'>
+<body id="sensor_reload" class='sensor'>
     <div class="top_left">
         <a href="/">
         <h1 id="wirebark">
@@ -34,6 +122,7 @@
                 <h3 class="display-3">Data from {{data.name}}</h3>
             </div>
         </div>
+
         <div class="row">
             <div class="col-lg-12 p-3">
                 <hr>
@@ -73,18 +162,19 @@
             </div>
         </div>
 
-        <div>
-            <button onclick="exportTableToCSV('{{download}}.csv')">Export archive values to CSV file</button>
-        </div>
-
         <div class="row justify-content-md-center">
-            <div class="col-lg-3 col-centered">
-                <select class = "form-control form-control-sm" onchange="choice(this.value);">
-                    <option value="a">Choose the graph</option>
-                    <option value='10'>10 </option>
-                    <option value='20'>20 </option>
-                    <option value='30'>30 </option>
+            <div class="col-lg-3">
+                <select id="graph_selector" class="form-control form-control-sm text-primary" onchange="choice(this.value);">
+                    <option id='o' value="NaN" selected>Choose the graph</option>
+                    <option id='o10' value='10'>10</option>
+                    <option id='o20' value='20'>20</option>
+                    <option id='o30' value='30'>30</option>
                 </select>
+            </div>
+            <div class="col-lg-6">
+            </div>
+            <div class="col-lg-3">
+                <button class="btn btn-warning" onclick="exportTableToCSV('{{download}}.csv')">Export archive values to CSV file</button>
             </div>
         </div>
 
@@ -93,6 +183,8 @@
                 <div>
                     <br>
                     <canvas id="myChart"></canvas>
+                    <!-- little bit of PURE magic -->
+                    <img id="magic" src="../static/magic_clear.png" onload='optioner("o{{option}}");grapher({{dates|safe}},  {{humidities}}, {{temperatures}}, {{lights}});'/>
                     <br>
                 </div>
             </div>
@@ -100,90 +192,12 @@
 
     </div>
 
-
     <script>
-        function choice(graph_choice){
-            if (graph_choice =='10'){
-                    location.href=location.origin+'/{{data.name}}/10';
-                }
-            else if (graph_choice =='20'){
-                    location.href=location.origin+'/{{data.name}}/20';
-                }
-            else if (graph_choice =='30'){
-                    location.href=location.origin+'/{{data.name}}/30';
-                }
-            };
-        </script>
-
-        <script>
-        {%if dates %}
-        $(document).ready(function(){
-            console.log("{{dates}}");
-            var time_Array = {{dates|safe}};
-            var humidity_Array = {{humidities}};
-            var temperature_Array = {{temperatures}};
-            var light_Array = {{lights}};
-
-
-            var ctx = document.getElementById ('myChart');
-            ctx.style.backgroundColor = 'rgb(255, 255, 255, 0.8)';
-            var myChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-            labels: time_Array,
-            datasets: [
-            {
-            label: 'Temperature',
-            data: temperature_Array,
-            borderColor: 'rgb(255,0,0)',
-            backgroundColor: 'rgba(255,0,0,0.3)',
-        },{
-            label: 'Humidity',
-            data: humidity_Array,
-            borderColor:'rgb(0,153,255)',
-            backgroundColor: 'rgba(0,153,255,0.3)',
-        },{
-            label: 'Light intensity',
-            data: light_Array,
-            borderColor: 'rgb(255,204,0)',
-            backgroundColor: 'rgba(255,204,0,0.3)',
-            hidden: true,
-        }]
-    },
-
-             options: {
-             scales: {
-                 yAxes: [{
-                     ticks: {
-                         beginAtZero:true
-                     }
-                 }],
-                 xAxes: [{
-                     type: 'time',
-                     time: {
-                         parser: 'DD-MM-YYYY HH:mm',
-                         unit: 'minute',
-                         displayFormats: {
-                             'minute': 'DD-MM-YYYY HH:mm',
-                             'hour': 'DD-MM-YYYY HH:mm'
-                         }
-                     }
-                 }]
-             }
-            }
-            });
-        });
-        {%endif%}
-        </script>
-
-        <script>
         function exportTableToCSV(filename) {
         var csv = {{archive|safe}};
 
-
-
         downloadCSV(csv, filename);
-        }
+        };
         function downloadCSV(csv, filename) {
         var downloadLink;
         var csvFile;
@@ -201,7 +215,7 @@
         document.body.appendChild(downloadLink);
 
         downloadLink.click();
-        }
+        };
     </script>
 </body>
 </html>
