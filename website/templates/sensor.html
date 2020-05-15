@@ -20,10 +20,12 @@
 
 <body class='sensor'>
     <div class="top_left">
+        <a href="/">
         <h1 id="wirebark">
             WIREBARK
         </h1>
-        <img src='../static/wirebark.png' height="180" width="180">
+        <img id = "wirebark" src='../static/wirebark.png' height="180" width="180">
+        </a>
     </div>
 
     <div class="container text-center">
@@ -96,12 +98,7 @@
 
 
     <script>
-        function hahayis(text){
-            console.log(text);
-        }
-
         function choice(graph_choice){
-
             if (graph_choice =='10'){
                     window.location.href = "http://127.0.0.1:5000/sensor1/10";
                 }
@@ -112,66 +109,66 @@
                     window.location.href = "http://127.0.0.1:5000/sensor1/30";
                 }
             };
-            </script>
-            <script>
-            $(document).ready(function(){
-                console.log("{{dates}}");
-                var time_Array = {{dates|safe}};
-                var humidity_Array = {{humidities}};
-                var temperature_Array = {{temperatures}};
-                var light_Array = {{lights}};
+        </script>
+
+        <script>
+        $(document).ready(function(){
+            console.log("{{dates}}");
+            var time_Array = {{dates|safe}};
+            var humidity_Array = {{humidities}};
+            var temperature_Array = {{temperatures}};
+            var light_Array = {{lights}};
 
 
-                var ctx = document.getElementById ('myChart');
-                ctx.style.backgroundColor = 'rgb(255, 255, 255, 0.8)';
-                var myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                labels: time_Array,
-                datasets: [
-                {
-                label: 'Temperature',
-                data: temperature_Array,
-                borderColor: 'rgb(255,0,0)',
-                backgroundColor: 'rgba(255,0,0,0.3)',
-            },{
-                label: 'Humidity',
-                data: humidity_Array,
-                borderColor:'rgb(0,153,255)',
-                backgroundColor: 'rgba(0,153,255,0.3)',
-            },{
-                label: 'Light intensity',
-                data: light_Array,
-                borderColor: 'rgb(255,204,0)',
-                backgroundColor: 'rgba(255,204,0,0.3)',
-                hidden: true,
-            }]
-        },
+            var ctx = document.getElementById ('myChart');
+            ctx.style.backgroundColor = 'rgb(255, 255, 255, 0.8)';
+            var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+            labels: time_Array,
+            datasets: [
+            {
+            label: 'Temperature',
+            data: temperature_Array,
+            borderColor: 'rgb(255,0,0)',
+            backgroundColor: 'rgba(255,0,0,0.3)',
+        },{
+            label: 'Humidity',
+            data: humidity_Array,
+            borderColor:'rgb(0,153,255)',
+            backgroundColor: 'rgba(0,153,255,0.3)',
+        },{
+            label: 'Light intensity',
+            data: light_Array,
+            borderColor: 'rgb(255,204,0)',
+            backgroundColor: 'rgba(255,204,0,0.3)',
+            hidden: true,
+        }]
+    },
 
-                 options: {
-                 scales: {
-                     yAxes: [{
-                         ticks: {
-                             beginAtZero:true
+             options: {
+             scales: {
+                 yAxes: [{
+                     ticks: {
+                         beginAtZero:true
+                     }
+                 }],
+                 xAxes: [{
+                     type: 'time',
+                     time: {
+                         parser: 'DD-MM-YYYY HH:mm',
+                         unit: 'minute',
+                         displayFormats: {
+                             'minute': 'DD-MM-YYYY HH:mm',
+                             'hour': 'DD-MM-YYYY HH:mm'
                          }
-                     }],
-                     xAxes: [{
-                         type: 'time',
-                         time: {
-                             parser: 'DD-MM-YYYY HH:mm',
-                             unit: 'minute',
-                             displayFormats: {
-                                 'minute': 'DD-MM-YYYY HH:mm',
-                                 'hour': 'DD-MM-YYYY HH:mm'
-                             }
-                         }
-                     }]
-                 }
-                }
-                });
+                     }
+                 }]
+             }
+            }
             });
-            </script>
-
+        });
+        </script>
 
 </body>
 </html>

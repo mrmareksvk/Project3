@@ -17,8 +17,16 @@ body.sensor {
     background-color: rgb(230,230,253,0.8);
 }
 
-#wirebark {
+#wirebark{
     font-family: Brush Script MT;
+    border-radius: 50%;
+    -webkit-transition: -webkit-transform .8s ease-in-out;
+    transition:         transform .8s ease-in-out;
+}
+
+ #wirebark:hover {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
 }
 
 /* Main page btns dnt tch */
@@ -30,8 +38,8 @@ body.sensor {
 #map {
     margin: auto;
     margin-top: 50px;
-    width: 600px;
-    height: 400px;
+    /*width: 600px;
+    height: 400px;*/
 }
 
 #m_status {

@@ -39,19 +39,19 @@
             xhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     document.body.innerHTML = this.responseText;
-                    console.log("AJAX");
+                    console.log("AJAX_IN");
                     }
             };
             xhttp.open("GET","", true);
             xhttp.send();
         };
 
-        setInterval(function(){ reload();}, 10000);
+        setInterval(function(){ reload();}, 60000);
 
     </script>
 </head>
 
-<body>
+<body class='main'>
     <div class="container text-center">
         <div class="row">
             <div class="col-lg-12 p-3">
@@ -67,16 +67,19 @@
             </div>
         </div>
 
-        <div class="row">
-            <div id="map">
-                <img src="static/magic.png" onload="mapFunction()"/>
+        <div class="row justify-content-md-center">
+            <div class="col-lg-8 p-3">
+                <div id="map">
+                    <img src="../static/magic.png" onload="mapFunction()"/>
+                </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-lg-12 p-3">
-                <img src='../static/wirebark1.png' height="180" width="180">
-                <h1 id="wirebark">WIREBARK</h1>
+            <div id="wirebark" class="col-lg-12 p-3">
+                <br>
+                <img src='../static/wirebark.png' height="180" width="180">
+                <h1>WIREBARK</h1>
             </div>
         </div>
 
