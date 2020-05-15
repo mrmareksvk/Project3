@@ -101,6 +101,8 @@ def sensorPage(sensorID=None, graph=None):
             t = Temp(data['temp'], 'c')
             hi = float(heat_index(temperature=t, humidity=int(data['hum'])).c)
 
+    con = DBconnector()
+    cur = con.cursor()
 
     cur.execute(
         psycopg2.sql.SQL("SELECT * FROM {}").format(
@@ -111,10 +113,12 @@ def sensorPage(sensorID=None, graph=None):
     archive = cur.fetchall()
     archive_list = list(map(list, archive))
 
+    cur.close()
+    con.close()
+
     for row in archive_list:
         row[6] = row[6].strftime("%d.%m.%Y %H:%M") + "\n"
-        row[6].replace(',','')
-
+        row[6].replace(',', '')
 
     filename = 'sensor%s' % (sensorID) + "_" + str(datetime.datetime.now(datetime.timezone.utc))
 
