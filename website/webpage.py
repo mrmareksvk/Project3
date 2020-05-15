@@ -100,6 +100,24 @@ def sensorPage(sensorID=None, graph=None):
             data_display = data
             t = Temp(data['temp'], 'c')
             hi = float(heat_index(temperature=t, humidity=int(data['hum'])).c)
+
+
+    cur.execute(
+        psycopg2.sql.SQL("SELECT * FROM {}").format(
+            psycopg2.sql.Identifier(tablename)
+        )
+    )
+
+    archive = cur.fetchall()
+    archive_list = list(map(list, archive))
+
+    for row in archive_list:
+        row[6] = row[6].strftime("%d.%m.%Y %H:%M") + "\n"
+        row[6].replace(',','')
+
+
+    filename = 'sensor%s' % (sensorID) + "_" + str(datetime.datetime.now(datetime.timezone.utc))
+
     datestamps = []
     if graph is not None:
         if '10' in graph:
@@ -114,9 +132,9 @@ def sensorPage(sensorID=None, graph=None):
             dates, temperatures, humidities, lights = data_graph(tablename, 30)
             for date in dates:
                 datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-        return render_template("sensor.html", hi=hi, data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights)
+        return render_template("sensor.html", hi=hi, data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights, archive=json.dumps(archive_list), download=filename)
     else:
-        return render_template("sensor.html", hi=hi, data=data_display)
+        return render_template("sensor.html", hi=hi, data=data_display, archive=json.dumps(archive_list), download=filename)
 
 
 if __name__ == "__main__":
