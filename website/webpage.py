@@ -64,34 +64,22 @@ def readDB():
     return latest_values
 
 
-def data_graph(data, tablename, limit):
+def data_graph(tablename, limit):
     con = DBconnector()
     cur = con.cursor()
-    if data == 'temperature, humidity':
-        split_data = data.split(", ")
-        cur.execute(psycopg2.sql.SQL("SELECT {}, {}, dt FROM {} ORDER BY dt DESC LIMIT %s").format(
-            psycopg2.sql.Identifier(split_data[0]), psycopg2.sql.Identifier(split_data[1]), psycopg2.sql.Identifier(tablename)), (limit,))
-    else:
-        cur.execute(psycopg2.sql.SQL("SELECT {}, dt FROM {} ORDER BY dt DESC LIMIT %s").format(
-            psycopg2.sql.Identifier(data), psycopg2.sql.Identifier(tablename)), (limit,))
+    cur.execute(psycopg2.sql.SQL("SELECT temperature, humidity, lux, dt FROM {} ORDER BY dt DESC LIMIT %s").format(
+        psycopg2.sql.Identifier(tablename)), (limit,))
     dates = []
     temperatures = []
     humidities = []
     lights = []
 
     for row in cur.fetchall():
-        if data == 'temperature, humidity':
-            temperatures.append(row[0])
-            humidities.append(row[1])
-            dates.append(row[2])
-        else:
-            dates.append(row[1])
-            if data == 'temperature':
-                temperatures.append(row[0])
-            elif data == 'humidity':
-                humidities.append(row[0])
-            else:
-                lights.append(row[0])
+        temperatures.append(row[0])
+        humidities.append(row[1])
+        lights.append(row[2])
+        dates.append(row[3])
+
     return dates, temperatures, humidities, lights
 
 
@@ -113,39 +101,18 @@ def sensorPage(sensorID=None, graph=None):
     datestamps = []
     if graph is not None:
         if '10' in graph:
-            if 'light' in graph:
-                dates, temperatures, humidities, lights = data_graph('lux', tablename, 10)
-                for date in dates:
-                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-                text = 'Light intensity (last 10 records)'
-            elif 'temp&hum' in graph:
-                dates, temperatures, humidities, lights = data_graph('temperature, humidity', tablename, 10)
-                for date in dates:
-                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-                text = 'Temperature&Humidity (last 10 records)'
+            dates, temperatures, humidities, lights = data_graph(tablename, 10)
+            for date in dates:
+                datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
         elif '20' in graph:
-            if 'light' in graph:
-                dates, temperatures, humidities, lights = data_graph('lux', tablename, 20)
-                for date in dates:
-                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-                text = 'Light intensity (last 10 records)'
-            elif 'temp&hum' in graph:
-                dates, temperatures, humidities, lights = data_graph('temperature, humidity', tablename, 20)
-                for date in dates:
-                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-                text = 'Temperature&Humidity (last 20 records)'
+            dates, temperatures, humidities, lights = data_graph(tablename, 20)
+            for date in dates:
+                datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
         elif '30' in graph:
-            if 'light' in graph:
-                dates, temperatures, humidities, lights = data_graph('lux', tablename, 30)
-                for date in dates:
-                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-                text = 'Light intensity (last 30 records)'
-            elif 'temp&hum' in graph:
-                dates, temperatures, humidities, lights = data_graph('temperature, humidity', tablename, 30)
-                for date in dates:
-                    datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-                text = 'Temperature&Humidity (last 30 records)'
-        return render_template("sensor.html", data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights, text=text)
+            dates, temperatures, humidities, lights = data_graph(tablename, 30)
+            for date in dates:
+                datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
+        return render_template("sensor.html", data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights)
     else:
         return render_template("sensor.html", data=data_display)
 
