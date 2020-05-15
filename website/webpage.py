@@ -120,6 +120,9 @@ def sensorPage(sensorID=None, graph=None):
         row[6] = row[6].strftime("%d.%m.%Y %H:%M") + "\n"
         row[6].replace(',', '')
 
+    # empty list added to beginning in order to fix CSV spacing issue
+    archive_list.insert(0, [])
+
     filename = 'sensor%s' % (sensorID) + "_" + str(datetime.datetime.now(datetime.timezone.utc))
 
     datestamps = []
