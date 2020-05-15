@@ -4,6 +4,7 @@ import psycopg2.sql
 import datetime
 import pytz
 import json
+from meteocalc import Temp, heat_index
 
 
 app = Flask(__name__)
@@ -97,7 +98,8 @@ def sensorPage(sensorID=None, graph=None):
     for data in data_a:
         if data['name'] == tablename:
             data_display = data
-
+            t = Temp(data['temp'], 'c')
+            hi = float(heat_index(temperature=t, humidity=int(data['hum'])).c)
     datestamps = []
     if graph is not None:
         if '10' in graph:
@@ -112,9 +114,9 @@ def sensorPage(sensorID=None, graph=None):
             dates, temperatures, humidities, lights = data_graph(tablename, 30)
             for date in dates:
                 datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-        return render_template("sensor.html", data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights)
+        return render_template("sensor.html", hi=hi, data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights)
     else:
-        return render_template("sensor.html", data=data_display)
+        return render_template("sensor.html", hi=hi, data=data_display)
 
 
 if __name__ == "__main__":
