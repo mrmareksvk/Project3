@@ -34,13 +34,13 @@ uint16 light;                                       // light val max 1024
 const uint16 light_treshold = 400;                  // minimal value to operate
 bool maintenanceNeeded = false;                     // flag for maintenance
 bool maintenanceMode = false;                       // mode flag
-short sleepMode = 2;
+byte sleepMode = 2;
 // TIMERS (49d. for millis roll-over)
 unsigned long timer1 = 0, lastReconnect = 0, interval = 1000;
 short gpsRetries = 0, gpsCooldown = 0;
 // ARRAYS for MQTT values
 char temp_a[6], hum_a[4], light_a[5];               // char buffers for publish
-// -WORK-IN-PROGRESS
+// Storage ARRAYS
 CircularBuffer<float,25> temp_stor;
 CircularBuffer<float,25> hum_stor;
 CircularBuffer<int,25> light_stor;
