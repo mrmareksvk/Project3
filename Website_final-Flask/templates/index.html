@@ -24,7 +24,8 @@
         if (map != undefined) { map.remove(); console.log("map removed"); }
         var map = L.map('map').setView([56.12, 10.16], 13);
         // console.log("map init");
-        L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=25GqmgtwruyjOSuODtXo', {
+        // 25GqmgtwruyjOSuODtXo - API KEY! DEBUG! DO NOT USE IN PRODUCTION PEOPLE, only for small tests
+        L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=xxxxxxxxxxxxxxxxxxxx', {
             attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a> &copy; WireBark',
         }).addTo(map);
 
