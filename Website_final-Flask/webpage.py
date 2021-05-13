@@ -90,7 +90,7 @@ def data_graph(tablename, limit):
 @app.route("/")
 def homePage():
     data_a = readDB()
-    return render_template("index.html", data_a=data_a)
+    return render_template("index.html.j2", data_a=data_a)
 
 
 @app.route("/sensor<sensorID>")
@@ -142,9 +142,9 @@ def sensorPage(sensorID=None, graph=None):
             dates, temperatures, humidities, lights = data_graph(tablename, 30)
             for date in dates:
                 datestamps.append(date.strftime("%d-%m-%Y %H:%M"))
-        return render_template("sensor.html", hi=hi, data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights, archive=json.dumps(archive_list), download=filename, option=graph)
+        return render_template("sensor.html.j2", hi=hi, data=data_display, dates=json.dumps(datestamps), temperatures=temperatures, humidities=humidities, lights=lights, archive=json.dumps(archive_list), download=filename, option=graph)
     else:
-        return render_template("sensor.html", hi=hi, data=data_display, archive=json.dumps(archive_list), download=filename)
+        return render_template("sensor.html.j2", hi=hi, data=data_display, archive=json.dumps(archive_list), download=filename)
 
 
 if __name__ == "__main__":
